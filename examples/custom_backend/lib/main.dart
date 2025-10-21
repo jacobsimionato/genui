@@ -12,7 +12,6 @@ void main() {
 }
 
 const _title = 'Custom Backend Demo';
-const kSurfaceId = 'custom_backend_surface';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
