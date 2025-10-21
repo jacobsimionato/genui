@@ -44,6 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<MessageController> _messages = [];
   late final GenUiConversation _genUiConversation;
+  late final GenUiManager _genUiManager;
   final ScrollController _scrollController = ScrollController();
 
   @override
