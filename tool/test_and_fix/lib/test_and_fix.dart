@@ -29,6 +29,7 @@ class TestAndFix {
     root ??= fs.currentDirectory;
     final projects = await findProjects(root, all: all);
     final jobs = <WorkerJob>[];
+    final failOkJobNames = <String>{};
 
     // Global jobs
     final fixJob = WorkerJob(
@@ -48,6 +49,7 @@ class TestAndFix {
       dependsOn: {formatJob},
       workingDirectory: root,
     );
+    failOkJobNames.add(copyrightJob.name);
     jobs.addAll([fixJob, formatJob, copyrightJob]);
 
     // Project-specific jobs
@@ -86,12 +88,15 @@ class TestAndFix {
     ProcessPool.defaultPrintReport(jobs.length, 0, 0, jobs.length, 0);
     final results = await pool.runToCompletion(jobs);
 
-    final successfulJobs = results
-        .where((job) => job.result.exitCode == 0)
-        .toList();
-    final failedJobs = results
-        .where((job) => job.result.exitCode != 0)
-        .toList();
+    final successfulJobs = <WorkerJobResult>[];
+    final failedJobs = <WorkerJobResult>[];
+    for (final job in results) {
+      if (job.result.exitCode == 0 || failOkJobNames.contains(job.name)) {
+        successfulJobs.add(job);
+      } else {
+        failedJobs.add(job);
+      }
+    }
 
     print('--- Successful Jobs ---');
     for (final job in successfulJobs) {
