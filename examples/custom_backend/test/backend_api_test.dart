@@ -5,6 +5,7 @@
 import 'package:custom_backend/main.dart';
 import 'package:custom_backend/protocol/protocol.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -13,11 +14,9 @@ void main() {
   });
 
   for (final savedResponse in savedResponseAssets) {
-    // To add more saved responses, comment this line,
-    // run the test, copy debug output of full response to a new asset
-    // and update length of savedResponseAssets.
-    if (savedResponse == null) continue;
-
+    // To update the saved responses, run the app, select "Request Gemini",
+    // and copy the console output of the "Response body" to the
+    // corresponding `saved-response-X.json` file in `assets/data/`.
     test(
       'sendRequest works for $savedResponse',
       () async {
@@ -27,6 +26,10 @@ void main() {
           savedResponse: savedResponse,
         );
         expect(result, isNotNull);
+        expect(result, isA<List<A2uiMessage>>());
+        expect(result!.length, 2);
+        expect(result[0], isA<SurfaceUpdate>());
+        expect(result[1], isA<BeginRendering>());
       },
       retry: 3,
       timeout: const Timeout(Duration(minutes: 2)),

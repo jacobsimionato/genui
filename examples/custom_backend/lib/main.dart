@@ -12,6 +12,7 @@ void main() {
 }
 
 const _title = 'Custom Backend Demo';
+const kSurfaceId = 'custom_backend_surface';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -66,7 +67,6 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
   late final GenUiManager _genUi = GenUiManager(catalog: _protocol.catalog);
   String? _selectedResponse;
   bool _isLoading = false;
-  String? _surfaceId;
   String? _errorMessage;
 
   @override
@@ -76,36 +76,35 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
         TextField(controller: _controller),
         const SizedBox(height: 20.0),
         _ResponseSelector((selected) => _selectedResponse = selected),
-
         const SizedBox(height: 20.0),
         IconButton(
           onPressed: () async {
-            setState(() => _isLoading = true);
+            setState(() {
+              _isLoading = true;
+              _errorMessage = null;
+            });
             try {
               print(
                 'Sending request for _selectedResponse = '
                 '$_selectedResponse ...',
               );
-              // ignore: omit_local_variable_types
-              final SurfaceUpdate? ui = await _protocol.sendRequest(
+              final messages = await _protocol.sendRequest(
                 _controller.text,
                 savedResponse: _selectedResponse,
               );
-              if (ui == null) {
+              if (messages == null) {
                 print('No UI received.');
-                _surfaceId = null;
                 setState(() {
                   _isLoading = false;
-                  _errorMessage = null;
                 });
                 return;
               }
-              _genUi.handleMessage(ui);
-              _surfaceId = ui.surfaceId;
-              print('UI received for surfaceId=$_surfaceId');
+              for (final message in messages) {
+                _genUi.handleMessage(message);
+              }
+              print('UI received for surfaceId=$kSurfaceId');
               setState(() => _isLoading = false);
             } catch (e, callStack) {
-              _surfaceId = null;
               print('Error connecting to backend: $e\n$callStack');
               setState(() {
                 _isLoading = false;
@@ -136,10 +135,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
     if (_errorMessage != null) {
       return Text('$_errorMessage');
     }
-    if (_surfaceId == null) {
-      return const Text('No UI 🤷‍♀️');
-    }
-    return GenUiSurface(surfaceId: _surfaceId!, host: _genUi);
+    return GenUiSurface(surfaceId: kSurfaceId, host: _genUi);
   }
 }
 
@@ -175,7 +171,7 @@ class _ResponseSelectorState extends State<_ResponseSelector> {
   }
 }
 
-const _numberOfSavedResponses = 4;
+const _numberOfSavedResponses = 3;
 final Iterable<String?> savedResponseAssets = List.generate(
   _numberOfSavedResponses + 1,
   (index) => index == 0 ? null : 'assets/data/saved-response-$index.json',
