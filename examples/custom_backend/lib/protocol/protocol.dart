@@ -7,7 +7,8 @@ import 'package:flutter_genui/flutter_genui.dart';
 import '../backend/api.dart';
 import '../backend/model.dart';
 import '../debug_utils.dart';
-import '../main.dart';
+
+const kSurfaceId = 'custom_backend_surface';
 
 class Protocol {
   Future<List<A2uiMessage>?> sendRequest(
