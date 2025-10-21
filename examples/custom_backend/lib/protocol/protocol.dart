@@ -3,8 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/model/a2ui_message.dart';
-import 'package:flutter_genui/src/model/a2ui_schemas.dart';
 
 import '../backend/api.dart';
 import '../backend/model.dart';
@@ -33,7 +31,7 @@ class Protocol {
     final messageJson = {'surfaceUpdate': toolCall.args};
     final surfaceUpdateMessage = A2uiMessage.fromJson(messageJson);
 
-    final beginRenderingMessage = BeginRendering(
+    final beginRenderingMessage = const BeginRendering(
       surfaceId: kSurfaceId,
       root: 'root',
     );
