@@ -60,7 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
           'of the user message.'
           '\n\n'
           '${GenUiPromptFragments.basicChat}',
-      tools: _genUiManager.getTools(),
+      tools: GenUiTools.allTools(_genUiManager),
     );
     _uiAgent = UiAgent(
       genUiManager: _genUiManager,

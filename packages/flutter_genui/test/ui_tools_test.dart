@@ -3,16 +3,14 @@
 // found in the LICENSE file.
 
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/core/ui_tools.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('UI Tools', () {
     late GenUiManager genUiManager;
-    late Catalog catalog;
 
     setUp(() {
-      catalog = CoreCatalogItems.asCatalog();
+      final catalog = CoreCatalogItems.asCatalog();
       genUiManager = GenUiManager(
         catalog: catalog,
         configuration: const GenUiConfiguration(
@@ -26,11 +24,7 @@ void main() {
     });
 
     test('SurfaceUpdateTool sends SurfaceUpdate message', () async {
-      final tool = SurfaceUpdateTool(
-        handleMessage: genUiManager.handleMessage,
-        catalog: catalog,
-        configuration: const GenUiConfiguration(),
-      );
+      final tool = SurfaceUpdateTool(genUiManager);
 
       final args = {
         surfaceIdKey: 'testSurface',
@@ -70,9 +64,7 @@ void main() {
     });
 
     test('BeginRenderingTool sends BeginRendering message', () async {
-      final tool = BeginRenderingTool(
-        handleMessage: genUiManager.handleMessage,
-      );
+      final tool = BeginRenderingTool(genUiManager);
 
       final args = {surfaceIdKey: 'testSurface', 'root': 'root'};
 

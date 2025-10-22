@@ -7,16 +7,13 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import '../ai_client/ai_client.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/data_model.dart';
-import '../model/tools.dart' show AiTool;
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import 'genui_configuration.dart';
-import 'ui_tools.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///
@@ -143,26 +140,6 @@ class GenUiManager implements GenUiHost {
 
   @override
   final Catalog catalog;
-
-  /// Returns a list of [AiTool]s that can be used to manipulate the UI.
-  ///
-  /// These tools should be provided to the [AiClient] to allow the AI to
-  /// generate and modify the UI.
-  List<AiTool> getTools() {
-    return [
-      if (configuration.actions.allowCreate ||
-          configuration.actions.allowUpdate) ...[
-        SurfaceUpdateTool(
-          handleMessage: handleMessage,
-          catalog: catalog,
-          configuration: configuration,
-        ),
-        BeginRenderingTool(handleMessage: handleMessage),
-      ],
-      if (configuration.actions.allowDelete)
-        DeleteSurfaceTool(handleMessage: handleMessage),
-    ];
-  }
 
   @override
   ValueNotifier<UiDefinition?> surface(String surfaceId) {

@@ -73,7 +73,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     _userMessageSubscription = _genUiManager.onSubmit.listen(
       _handleUserMessageFromUi,
     );
-    final tools = _genUiManager.getTools();
+    final tools = GenUiTools.allTools(_genUiManager);
     tools.add(ListHotelsTool(onListHotels: BookingService.instance.listHotels));
     _aiClient =
         widget.aiClient ??
