@@ -88,8 +88,8 @@ class TestAndFix {
     ProcessPool.defaultPrintReport(jobs.length, 0, 0, jobs.length, 0);
     final results = await pool.runToCompletion(jobs);
 
-    final successfulJobs = <WorkerJobResult>[];
-    final failedJobs = <WorkerJobResult>[];
+    final successfulJobs = <WorkerJob>[];
+    final failedJobs = <WorkerJob>[];
     for (final job in results) {
       if (job.result.exitCode == 0 || failOkJobNames.contains(job.name)) {
         successfulJobs.add(job);
