@@ -3,8 +3,10 @@
 // found in the LICENSE file.
 
 import 'dart:async' show StreamSubscription;
+import 'dart:collection';
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
@@ -69,12 +71,12 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
             .toList();
 
         Component? rootComponent;
-        try {
-          rootComponent = components.firstWhere((c) => c.id == 'root');
-        } on StateError {
+        rootComponent = components.firstWhereOrNull((c) => c.id == 'root');
+
+        if (rootComponent == null) {
           debugPrint(
-            'Skipping example for ${item.name} because it is missing a '
-            'root component.',
+            'Skipping example for ${item.name} because it is missing a root '
+            'component.',
           );
           continue;
         }
