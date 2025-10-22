@@ -97,12 +97,22 @@ class DataModel {
     if (path.startsWith('/')) {
       path = path.substring(1);
     }
-    final segments = <String>[];
-    final regExp = RegExp(r'([^/\[\]]+)|(\[\d+\])');
-    final matches = regExp.allMatches(path);
-    for (final match in matches) {
-      segments.add(match.group(0)!);
+    if (path.isEmpty) {
+      return [];
     }
+    final segments = <String>[];
+    // Split by `/` and then process each part to handle array indices.
+    path.split('/').forEach((segment) {
+      final regExp = RegExp(r'(\w+)|(\[\d+\])');
+      final matches = regExp.allMatches(segment);
+      for (final match in matches) {
+        if (match.group(1) != null) {
+          segments.add(match.group(1)!);
+        } else if (match.group(2) != null) {
+          segments.add(match.group(2)!);
+        }
+      }
+    });
     return segments;
   }
 
@@ -135,43 +145,57 @@ class DataModel {
 
     if (segment.startsWith('[')) {
       final index = int.tryParse(segment.substring(1, segment.length - 1));
-      if (index != null && current is List && index >= 0) {
-        if (remaining.isEmpty) {
-          if (index < current.length) {
-            current[index] = value;
-          } else if (index == current.length) {
-            current.add(value);
-          } else {
-            throw ArgumentError(
-              'Index out of bounds for list update: index ($index) is greater '
-              'than list length (${current.length}).',
-            );
-          }
+      if (index == null) {
+        throw ArgumentError('Invalid list index in path: $segment');
+      }
+      if (current is! List) {
+        throw ArgumentError(
+          'Path segment preceding list index is not a list: $segment',
+        );
+      }
+
+      if (remaining.isEmpty) {
+        if (index < current.length) {
+          current[index] = value;
+        } else if (index == current.length) {
+          current.add(value);
         } else {
-          if (index < current.length) {
-            _updateValue(current[index], remaining, value);
-          } else {
-            throw ArgumentError(
-              'Index out of bounds for nested update: index ($index) is '
-              'greater than or equal to list length (${current.length}).',
-            );
-          }
+          // Pad with nulls if the index is beyond the end of the list.
+          current.addAll(List.filled(index - current.length, null));
+          current.add(value);
+        }
+      } else {
+        if (index < current.length) {
+          _updateValue(current[index], remaining, value);
+        } else if (index == current.length) {
+          final nextSegment = remaining.first;
+          final newChild = nextSegment.startsWith('[')
+              ? <dynamic>[]
+              : <String, dynamic>{};
+          current.add(newChild);
+          _updateValue(newChild, remaining, value);
+        } else {
+          throw ArgumentError(
+            'Index out of bounds for nested update: index ($index) is '
+            'greater than list length (${current.length}).',
+          );
         }
       }
     } else {
-      if (current is Map) {
-        if (remaining.isEmpty) {
-          current[segment] = value;
-        } else {
-          if (!current.containsKey(segment)) {
-            if (remaining.first.startsWith('[')) {
-              current[segment] = <dynamic>[];
-            } else {
-              current[segment] = <String, dynamic>{};
-            }
+      if (current is! Map) {
+        throw ArgumentError('Path segment is not a map for key: $segment');
+      }
+      if (remaining.isEmpty) {
+        current[segment] = value;
+      } else {
+        if (!current.containsKey(segment)) {
+          if (remaining.first.startsWith('[')) {
+            current[segment] = <dynamic>[];
+          } else {
+            current[segment] = <String, dynamic>{};
           }
-          _updateValue(current[segment], remaining, value);
         }
+        _updateValue(current[segment], remaining, value);
       }
     }
   }
