@@ -102,8 +102,11 @@ class DataModel {
     }
     final segments = <String>[];
     // Split by `/` and then process each part to handle array indices.
-    path.split('/').forEach((segment) {
-      final regExp = RegExp(r'(\w+)|(\[\d+\])');
+    final regExp = RegExp(r'([^\x5B\x5D]+)|(\[\d+\])');
+    for (final segment in path.split('/')) {
+      if (segment.isEmpty) {
+        continue;
+      }
       final matches = regExp.allMatches(segment);
       for (final match in matches) {
         if (match.group(1) != null) {
@@ -112,7 +115,7 @@ class DataModel {
           segments.add(match.group(2)!);
         }
       }
-    });
+    }
     return segments;
   }
 
@@ -175,10 +178,15 @@ class DataModel {
           current.add(newChild);
           _updateValue(newChild, remaining, value);
         } else {
-          throw ArgumentError(
-            'Index out of bounds for nested update: index ($index) is '
-            'greater than list length (${current.length}).',
-          );
+          // Pad with nulls if the index is beyond the end of the list, then
+          // create a new child for the nested update.
+          current.addAll(List.filled(index - current.length, null));
+          final nextSegment = remaining.first;
+          final newChild = nextSegment.startsWith('[')
+              ? <dynamic>[]
+              : <String, dynamic>{};
+          current.add(newChild);
+          _updateValue(newChild, remaining, value);
         }
       }
     } else {
