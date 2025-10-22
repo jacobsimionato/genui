@@ -73,7 +73,8 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
           rootComponent = components.firstWhere((c) => c.id == 'root');
         } on StateError {
           debugPrint(
-            'Skipping example for ${item.name} because it is missing a root component.',
+            'Skipping example for ${item.name} because it is missing a '
+            'root component.',
           );
           continue;
         }
