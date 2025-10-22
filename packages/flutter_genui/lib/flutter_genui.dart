@@ -4,7 +4,6 @@
 
 export 'src/ai_client/ai_client.dart';
 export 'src/catalog/core_catalog.dart';
-export 'src/catalog/validation_test_utils.dart';
 export 'src/core/genui_configuration.dart';
 export 'src/core/genui_manager.dart';
 export 'src/core/genui_surface.dart';

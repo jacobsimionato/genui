@@ -68,12 +68,15 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
             .map((e) => Component.fromJson(e as JsonMap))
             .toList();
 
-        final rootComponent = components.firstWhere(
-          (c) => c.id == 'root',
-          orElse: () => throw Exception(
-            'Example for ${item.name} must have a root component',
-          ),
-        );
+        Component? rootComponent;
+        try {
+          rootComponent = components.firstWhere((c) => c.id == 'root');
+        } on StateError {
+          debugPrint(
+            'Skipping example for ${item.name} because it is missing a root component.',
+          );
+          continue;
+        }
 
         _genUi.handleMessage(
           SurfaceUpdate(surfaceId: surfaceId, components: components),
