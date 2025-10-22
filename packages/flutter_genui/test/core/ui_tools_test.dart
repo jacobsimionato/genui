@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 class MockGenUiManager extends GenUiManager {
-  MockGenUiManager({required super.catalog, super.configuration});
+  MockGenUiManager({required super.catalog});
 
   final messages = <A2uiMessage>[];
 
@@ -39,7 +39,6 @@ void main() {
             dataSchema: Schema.object(properties: {}),
           ),
         ]),
-        configuration: const GenUiConfiguration(),
       );
 
       final tool = SurfaceUpdateTool(mockManager);

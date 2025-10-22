@@ -17,14 +17,36 @@ class GenUiTools {
   /// system.
   static List<AiTool> allTools(GenUiManager genUiManager) {
     return [
-      if (genUiManager.configuration.actions.allowCreate ||
-          genUiManager.configuration.actions.allowUpdate) ...[
-        SurfaceUpdateTool(genUiManager),
-        BeginRenderingTool(genUiManager),
-      ],
-      if (genUiManager.configuration.actions.allowDelete)
-        DeleteSurfaceTool(genUiManager),
+      SurfaceUpdateTool(genUiManager),
+      BeginRenderingTool(genUiManager),
+      DeleteSurfaceTool(genUiManager),
+      DataModelUpdateTool(genUiManager),
     ];
+  }
+}
+
+/// An [AiTool] for updating the data model.
+class DataModelUpdateTool extends AiTool<JsonMap> {
+  /// Creates a [DataModelUpdateTool].
+  DataModelUpdateTool(this.genUiManager)
+    : super(
+        name: 'dataModelUpdate',
+        description: 'Updates the data model of a surface.',
+        parameters: A2uiSchemas.dataModelUpdateSchema(),
+      );
+
+  /// The [GenUiManager] to use for updating the UI.
+  final GenUiManager genUiManager;
+
+  @override
+  Future<JsonMap> invoke(JsonMap args) async {
+    final surfaceId = args[surfaceIdKey] as String;
+    final path = args['path'] as String?;
+    final contents = args['contents'] as JsonMap;
+    genUiManager.handleMessage(
+      DataModelUpdate(surfaceId: surfaceId, path: path, contents: contents),
+    );
+    return {'status': 'ok'};
   }
 }
 
