@@ -140,12 +140,13 @@ Future<int> fixCopyrights(
     }
     if (!force) {
       stdErr('\nRun with --force to update them.');
+      return 1;
     } else {
       stdErr(
-        '''\nAll files were given correct copyright notices, but please check them all manually. If a file had an out-of-compliance copyright that didn't match a known pattern, it may have been left intact, leaving a duplicate.''',
+        '''
+All files were given correct copyright notices, but please check them all manually. If a file had an out-of-compliance copyright that didn't match a known pattern, it may have been left intact, leaving a duplicate.''',
       );
     }
-    return 1;
   }
   return 0;
 }

@@ -97,7 +97,7 @@ $prefix found in the LICENSE file.''';
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(getBadCopyright());
     final result = await runFixCopyrights(paths: ['test.dart'], force: true);
-    expect(result, equals(1));
+    expect(result, equals(0));
     expect(log, equals(['/test.dart']));
     expect(
       error,
@@ -125,7 +125,7 @@ $prefix found in the LICENSE file.''';
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(wrongCopyright);
     final result = await runFixCopyrights(paths: ['test.dart'], force: true);
-    expect(result, equals(1));
+    expect(result, equals(0));
     expect(log, equals(['/test.dart']));
     expect(
       error,
@@ -153,7 +153,7 @@ $prefix found in the LICENSE file.''';
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(randomPreamble);
     final result = await runFixCopyrights(paths: ['test.dart'], force: true);
-    expect(result, equals(1));
+    expect(result, equals(0));
     expect(log, equals(['/test.dart']));
     expect(
       error,
@@ -172,7 +172,7 @@ $prefix found in the LICENSE file.''';
         '$bashShebang\n${getBadCopyright(prefix: '#')}\n$randomShellPreamble',
       );
     final result = await runFixCopyrights(paths: ['test.sh'], force: true);
-    expect(result, equals(1));
+    expect(result, equals(0));
     expect(log, equals(['/test.sh']));
     expect(
       error,
@@ -192,7 +192,7 @@ $prefix found in the LICENSE file.''';
         '$badShebang\n${getBadCopyright(prefix: "#")}\n$randomPreamble',
       );
     final result = await runFixCopyrights(paths: ['test.sh'], force: true);
-    expect(result, equals(1));
+    expect(result, equals(0));
     expect(log, equals(['/test.sh']));
     expect(
       error,
@@ -230,7 +230,7 @@ $prefix found in the LICENSE file.''';
     final testFile4 = fileSystem.file('test4.dart')
       ..writeAsStringSync('$copyright\n\n$randomPreamble');
     final result = await runFixCopyrights(force: true);
-    expect(result, equals(1));
+    expect(result, equals(0));
     expect(log, unorderedEquals(['/test1.dart', '/test2.dart', '/test3.dart']));
     expect(
       error,
@@ -263,7 +263,7 @@ $prefix found in the LICENSE file.''';
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(getBadCopyright().toLowerCase());
     final result = await runFixCopyrights(paths: ['test.dart'], force: true);
-    expect(result, equals(1));
+    expect(result, equals(0));
     expect(log, equals(['/test.dart']));
     expect(
       error,
@@ -277,7 +277,7 @@ $prefix found in the LICENSE file.''';
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(getBadCopyright().replaceAll('\n', '\r\n'));
     final result = await runFixCopyrights(paths: ['test.dart'], force: true);
-    expect(result, equals(1));
+    expect(result, equals(0));
     expect(log, equals(['/test.dart']));
     expect(
       error,
@@ -296,7 +296,7 @@ found in the LICENSE file. -->''';
     final testFile = fileSystem.file('test.xml')
       ..writeAsStringSync(xmlPreamble);
     final result = await runFixCopyrights(paths: ['test.xml'], force: true);
-    expect(result, equals(1));
+    expect(result, equals(0));
     expect(log, equals(['/test.xml']));
     expect(
       error,
