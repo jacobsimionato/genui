@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'dart:async' show StreamSubscription;
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
