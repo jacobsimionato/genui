@@ -6,7 +6,6 @@ import 'dart:convert';
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../../flutter_genui.dart' show CatalogItem;
 import '../model/a2ui_message.dart';
 import '../model/a2ui_schemas.dart';
 import '../model/catalog.dart';
