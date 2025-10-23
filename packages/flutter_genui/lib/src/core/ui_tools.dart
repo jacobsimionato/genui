@@ -20,7 +20,8 @@ class GenUiTools {
       SurfaceUpdateTool(genUiManager),
       BeginRenderingTool(genUiManager),
       DeleteSurfaceTool(genUiManager),
-      DataModelUpdateTool(genUiManager),
+      // Add DataModelUpdate tool here once
+      //https://github.com/flutter/genui/pull/423 is fixed
     ];
   }
 }
