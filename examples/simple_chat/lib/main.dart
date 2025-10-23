@@ -43,8 +43,8 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<MessageController> _messages = [];
+  late final GenUiConversation _genUiConversation;
   late final GenUiManager _genUiManager;
-  late final UiAgent _uiAgent;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -65,13 +65,13 @@ class _ChatScreenState extends State<ChatScreen> {
         BeginRenderingTool(_genUiManager),
       ],
     );
-    _uiAgent = UiAgent(
+    _genUiConversation = GenUiConversation(
       genUiManager: _genUiManager,
       aiClient: aiClient,
       onSurfaceAdded: _handleSurfaceAdded,
       onTextResponse: _onTextResponse,
       // ignore: avoid_print
-      onWarning: (value) => print('Warning from UiAgent: $value'),
+      onWarning: (value) => print('Warning from GenUiConversation: $value'),
     );
   }
 
@@ -104,13 +104,15 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   final message = _messages[index];
-                  return ListTile(title: MessageView(message, _uiAgent.host));
+                  return ListTile(
+                    title: MessageView(message, _genUiConversation.host),
+                  );
                 },
               ),
             ),
 
             ValueListenableBuilder(
-              valueListenable: _uiAgent.isProcessing,
+              valueListenable: _genUiConversation.isProcessing,
               builder: (_, isProcessing, _) {
                 if (!isProcessing) return Container();
                 return const Padding(
@@ -159,7 +161,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _scrollToBottom();
 
-    unawaited(_uiAgent.sendRequest(UserMessage([TextPart(text)])));
+    unawaited(_genUiConversation.sendRequest(UserMessage([TextPart(text)])));
   }
 
   void _scrollToBottom() {
@@ -176,7 +178,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    _uiAgent.dispose();
+    _genUiConversation.dispose();
     super.dispose();
   }
 }
