@@ -84,8 +84,8 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     return widget.host.catalog.buildWidget(
       id: widgetId,
       widgetData: widgetData,
-      buildChild: (String childId, [DataContext? childDataContext]) =>
-          _buildWidget(definition, childId, childDataContext ?? dataContext),
+      buildChild: (String childId) =>
+          _buildWidget(definition, childId, dataContext),
       dispatchEvent: _dispatchEvent,
       context: context,
       dataContext: dataContext,

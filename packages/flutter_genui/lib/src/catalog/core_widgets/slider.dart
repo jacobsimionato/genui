@@ -8,7 +8,6 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../core/widget_utilities.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
-import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
@@ -36,13 +35,6 @@ extension type _SliderData.fromMap(JsonMap _json) {
   double get maxValue => (_json['maxValue'] as num?)?.toDouble() ?? 1.0;
 }
 
-/// A catalog item for a Material Design slider.
-///
-/// ### Parameters:
-///
-/// - `value`: The current value of the slider.
-/// - `minValue`: The minimum value of the slider. Defaults to 0.0.
-/// - `maxValue`: The maximum value of the slider. Defaults to 1.0.
 final slider = CatalogItem(
   name: 'Slider',
   dataSchema: _schema,
@@ -71,7 +63,7 @@ final slider = CatalogItem(
               onChanged: (newValue) {
                 final path = sliderData.value['path'] as String?;
                 if (path != null) {
-                  dataContext.update(DataPath(path), newValue);
+                  dataContext.update(path, newValue);
                 }
               },
             );

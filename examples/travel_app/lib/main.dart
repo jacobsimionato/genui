@@ -22,7 +22,14 @@ void main() async {
     providerWeb: ReCaptchaV3Provider('debug'),
   );
   await loadImagesJson();
-  configureGenUiLogging(level: Level.ALL);
+  final logger = configureGenUiLogging(level: Level.ALL);
+  logger.onRecord.listen((record) {
+    // ignore: avoid_print
+    print(
+      '${record.level.name}: ${record.time}: ${record.loggerName}: '
+      '${record.message}',
+    );
+  });
   runApp(const TravelApp());
 }
 
@@ -36,11 +43,11 @@ const _title = 'Agentic Travel Inc';
 class TravelApp extends StatelessWidget {
   /// Creates a new [TravelApp].
   ///
-  /// The optional [contentGenerator] can be used to inject a specific AI
-  /// client, which is useful for testing with a mock implementation.
-  const TravelApp({this.contentGenerator, super.key});
+  /// The optional [aiClient] can be used to inject a specific AI client,
+  /// which is useful for testing with a mock implementation.
+  const TravelApp({this.aiClient, super.key});
 
-  final ContentGenerator? contentGenerator;
+  final AiClient? aiClient;
 
   @override
   Widget build(BuildContext context) {
@@ -50,24 +57,24 @@ class TravelApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: _TravelAppBody(contentGenerator),
+      home: _TravelAppBody(aiClient),
     );
   }
 }
 
 class _TravelAppBody extends StatelessWidget {
-  _TravelAppBody(this.contentGenerator);
+  _TravelAppBody(this.aiClient);
 
   /// The AI client to use for the application.
   ///
-  /// If null, a default [FirebaseAiContentGenerator] will be created by the
+  /// If null, a default [FirebaseAiClient] will be created by the
   /// [TravelPlannerPage].
-  final ContentGenerator? contentGenerator;
+  final AiClient? aiClient;
 
   @override
   Widget build(BuildContext context) {
     final tabs = {
-      'Travel': TravelPlannerPage(contentGenerator: contentGenerator),
+      'Travel': TravelPlannerPage(aiClient: aiClient),
       'Widget Catalog': const CatalogTab(),
     };
     return DefaultTabController(

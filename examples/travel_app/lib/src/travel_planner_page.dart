@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import 'asset_images.dart';
 import 'catalog.dart';
@@ -21,7 +22,7 @@ Future<void> loadImagesJson() async {
 /// The main page for the travel planner application.
 ///
 /// This stateful widget manages the core user interface and application logic.
-/// It initializes the [GenUiManager] and [ContentGenerator], maintains the
+/// It initializes the [GenUiManager] and [AiClient], maintains the
 /// conversation history, and handles the interaction between the user, the AI,
 /// and the dynamically generated UI.
 ///
@@ -31,16 +32,16 @@ Future<void> loadImagesJson() async {
 class TravelPlannerPage extends StatefulWidget {
   /// Creates a new [TravelPlannerPage].
   ///
-  /// An optional [contentGenerator] can be provided, which is useful for
-  /// testing or using a custom AI client implementation. If not provided, a
-  /// default [FirebaseAiContentGenerator] is created.
-  const TravelPlannerPage({this.contentGenerator, super.key});
+  /// An optional [aiClient] can be provided, which is useful for testing
+  /// or using a custom AI client implementation. If not provided, a default
+  /// [FirebaseAiClient] is created.
+  const TravelPlannerPage({this.aiClient, super.key});
 
   /// The AI client to use for the application.
   ///
-  /// If null, a default instance of [FirebaseAiContentGenerator] will be
-  /// created within the page's state.
-  final ContentGenerator? contentGenerator;
+  /// If null, a default instance of [FirebaseAiClient] will be created within
+  /// the page's state.
+  final AiClient? aiClient;
 
   @override
   State<TravelPlannerPage> createState() => _TravelPlannerPageState();
@@ -48,17 +49,18 @@ class TravelPlannerPage extends StatefulWidget {
 
 class _TravelPlannerPageState extends State<TravelPlannerPage>
     with AutomaticKeepAliveClientMixin {
-  late final GenUiConversation _uiAgent;
+  late final GenUiManager _genUiManager;
+  late final AiClient _aiClient;
   late final StreamSubscription<UserMessage> _userMessageSubscription;
-
   final List<ChatMessage> _conversation = [];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _isThinking = false;
 
   @override
   void initState() {
     super.initState();
-    final genUiManager = GenUiManager(
+    _genUiManager = GenUiManager(
       catalog: travelAppCatalog,
       configuration: const GenUiConfiguration(
         actions: ActionsConfig(
@@ -68,68 +70,46 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
         ),
       ),
     );
-    _userMessageSubscription = genUiManager.onSubmit.listen(
+    _userMessageSubscription = _genUiManager.onSubmit.listen(
       _handleUserMessageFromUi,
     );
-    final contentGenerator =
-        widget.contentGenerator ??
-        FirebaseAiContentGenerator(
-          catalog: travelAppCatalog,
-          systemInstruction: prompt,
-          additionalTools: [
-            ListHotelsTool(onListHotels: BookingService.instance.listHotels),
-          ],
-        );
-    _uiAgent = GenUiConversation(
-      genUiManager: genUiManager,
-      contentGenerator: contentGenerator,
-      onSurfaceAdded: (update) {
-        setState(() {
-          _conversation.add(
-            AiUiMessage(
-              definition: update.definition,
-              surfaceId: update.surfaceId,
-            ),
-          );
-          _scrollToBottom();
-        });
-      },
-      onSurfaceUpdated: (update) {
-        setState(() {
-          final index = _conversation.lastIndexWhere(
-            (m) => m is AiUiMessage && m.surfaceId == update.surfaceId,
-          );
-          if (index != -1) {
-            _conversation[index] = AiUiMessage(
-              definition: update.definition,
-              surfaceId: update.surfaceId,
+    final tools = _genUiManager.getTools();
+    tools.add(ListHotelsTool(onListHotels: BookingService.instance.listHotels));
+    _aiClient =
+        widget.aiClient ??
+        FirebaseAiClient(tools: tools, systemInstruction: prompt);
+    _genUiManager.surfaceUpdates.listen((update) {
+      setState(() {
+        switch (update) {
+          case SurfaceAdded(:final surfaceId, :final definition):
+            _conversation.add(
+              AiUiMessage(definition: definition, surfaceId: surfaceId),
             );
-          }
-        });
-      },
-      onSurfaceDeleted: (update) {
-        setState(() {
-          _conversation.removeWhere(
-            (m) => m is AiUiMessage && m.surfaceId == update.surfaceId,
-          );
-        });
-      },
-      onTextResponse: (text) {
-        if (!mounted) return;
-        if (text.isNotEmpty) {
-          setState(() {
-            _conversation.add(AiTextMessage.text(text));
-          });
-          _scrollToBottom();
+            _scrollToBottom();
+
+          case SurfaceRemoved(:final surfaceId):
+            _conversation.removeWhere(
+              (m) => m is AiUiMessage && m.surfaceId == surfaceId,
+            );
+          case SurfaceUpdated(:final surfaceId, :final definition):
+            final index = _conversation.lastIndexWhere(
+              (m) => m is AiUiMessage && m.surfaceId == surfaceId,
+            );
+            if (index != -1) {
+              _conversation[index] = AiUiMessage(
+                definition: definition,
+                surfaceId: surfaceId,
+              );
+            }
         }
-      },
-    );
+      });
+    });
   }
 
   @override
   void dispose() {
+    _genUiManager.dispose();
     _userMessageSubscription.cancel();
-    _uiAgent.dispose();
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -147,8 +127,46 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     });
   }
 
-  Future<void> _triggerInference(UserMessage message) async {
-    await _uiAgent.sendRequest(message);
+  Future<void> _triggerInference() async {
+    setState(() {
+      _isThinking = true;
+    });
+    try {
+      final result = await _aiClient.generateContent(
+        _conversation,
+        S.object(
+          properties: {
+            'result': S.boolean(
+              description: 'Successfully generated a response UI.',
+            ),
+            'message': S.string(
+              description:
+                  'A message about what went wrong, or a message responding to '
+                  'the request. Take into account any UI that has been '
+                  "generated, so there's no need to duplicate requests or "
+                  'information already present in the UI.',
+            ),
+          },
+          required: ['result'],
+        ),
+      );
+      if (result == null) {
+        return;
+      }
+      final value =
+          (result as Map).cast<String, Object?>()['message'] as String? ?? '';
+      if (value.isNotEmpty) {
+        setState(() {
+          _conversation.add(AiTextMessage.text(value));
+        });
+        _scrollToBottom();
+      }
+    } finally {
+      setState(() {
+        _isThinking = false;
+      });
+    }
+    return;
   }
 
   void _handleUserMessageFromUi(UserMessage message) {
@@ -156,17 +174,17 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
       _conversation.add(UserUiInteractionMessage.text(message.text));
     });
     _scrollToBottom();
-    _triggerInference(message);
+    _triggerInference();
   }
 
   void _sendPrompt(String text) {
-    if (_uiAgent.isProcessing.value || text.trim().isEmpty) return;
+    if (_isThinking || text.trim().isEmpty) return;
     setState(() {
       _conversation.add(UserMessage.text(text));
     });
     _scrollToBottom();
     _textController.clear();
-    _triggerInference(UserMessage.text(text));
+    _triggerInference();
   }
 
   @override
@@ -181,22 +199,17 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
                 constraints: const BoxConstraints(maxWidth: 1000),
                 child: Conversation(
                   messages: _conversation,
-                  manager: _uiAgent.genUiManager,
+                  manager: _genUiManager,
                   scrollController: _scrollController,
                 ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: ValueListenableBuilder<bool>(
-                valueListenable: _uiAgent.isProcessing,
-                builder: (context, isThinking, child) {
-                  return _ChatInput(
-                    controller: _textController,
-                    isThinking: isThinking,
-                    onSend: _sendPrompt,
-                  );
-                },
+              child: _ChatInput(
+                controller: _textController,
+                isThinking: _isThinking,
+                onSend: _sendPrompt,
               ),
             ),
           ],
@@ -356,7 +369,7 @@ the user can return to the main booking flow once they have done some research.
 
 Use the provided tools to build and manage the user interface in response to the
 user's requests. To display or update a UI, you must first call the
-`surfaceUpdate` tool to define all the necessary components. After defining the
+`updateSurface` tool to define all the necessary components. After defining the
 components, you must call the `beginRendering` tool to specify the root
 component that should be displayed.
 
@@ -370,12 +383,12 @@ because it avoids confusing the conversation with many versions of the same
 itinerary etc.
 
 When processing a user message or event, you should add or update one surface
-and then wait for the next user event. Never continue to add or update surfaces
-until you receive another user event. If the last entry in the context is a
-functionResponse, your turn is complete. Do not call any more tools; simply wait
-for the next user input. immediately - don't try to update the UI. If you are
-displaying more than one component, you should use a `Column` widget as the root
-and add the other components as children.
+and then call provideFinalOutput to return control to the user. Never continue
+to add or update surfaces until you receive another user event. If the last
+entry in the context is a functionResponse, just call provideFinalOutput
+immediately - don't try to update the UI. If you are displaying more than one
+component, you should use a `Column` widget as the root and add the other
+components as children.
 
 # UI style
 
@@ -429,7 +442,7 @@ It is fine if the image is irrelevant, as long as it is from the list.
 
 # Example
 
-Here is an example of the arguments to the `surfaceUpdate` tool. Note that
+Here is an example of the arguments to the `addOrUpdateSurface` tool. Note that
 the `root` widget ID must be present in the `widgets` list, and it should
 contain the other widgets.
 ```json
@@ -540,5 +553,5 @@ contain the other widgets.
 }
 ```
 
-When updating or showing UIs, **ALWAYS** use the surfaceUpdate tool to supply them. Prefer to collect and show information by creating a UI for it.
+When updating or showing UIs, **ALWAYS** use the addOrUpdateSurface tool to supply them. Prefer to collect and show information by creating a UI for it.
 ''';

@@ -97,7 +97,7 @@ final textInputChip = CatalogItem(
               obscured: textInputChipData.obscured,
               onChanged: (newValue) {
                 if (path != null) {
-                  dataContext.update(DataPath(path), newValue);
+                  dataContext.update(path, newValue);
                 }
               },
             );

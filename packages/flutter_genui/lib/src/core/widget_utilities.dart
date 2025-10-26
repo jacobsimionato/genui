@@ -49,11 +49,10 @@ extension DataContextExtensions on DataContext {
     final literal = ref[literalKey];
 
     if (path != null) {
-      final dataPath = DataPath(path);
       if (literal != null) {
-        update(dataPath, literal);
+        update(path, literal);
       }
-      return subscribe<T>(dataPath);
+      return subscribe<T>(path);
     }
 
     return ValueNotifier<T?>(literal as T?);
@@ -88,7 +87,7 @@ JsonMap resolveContext(
     final key = entry['key']! as String;
     final value = entry['value'] as JsonMap;
     if (value.containsKey('path')) {
-      resolved[key] = dataContext.getValue(DataPath(value['path'] as String));
+      resolved[key] = dataContext.getValue(value['path'] as String);
     } else if (value.containsKey('literalString')) {
       resolved[key] = value['literalString'];
     } else if (value.containsKey('literalNumber')) {

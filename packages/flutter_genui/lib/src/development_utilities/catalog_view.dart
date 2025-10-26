@@ -30,10 +30,7 @@ class DebugCatalogView extends StatefulWidget {
     this.itemHeight,
   });
 
-  /// The catalog of widgets to display.
   final Catalog catalog;
-
-  /// A callback for when a user submits an action.
   final ValueChanged<UserMessage>? onSubmit;
 
   /// If provided, constrains each item to the given height.

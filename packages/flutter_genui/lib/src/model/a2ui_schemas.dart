@@ -118,22 +118,10 @@ class A2uiSchemas {
   /// the given surface so that the surface can be rendered.
   static Schema beginRenderingSchema() => S.object(
     properties: {
-      surfaceIdKey: S.string(
-        description: 'The surface ID of the surface to render.',
-      ),
-      'root': S.string(
-        description:
-            'The root widget ID for the surface. '
-            'All components must be descendents of this root in order to be '
-            'displayed.',
-      ),
+      surfaceIdKey: S.string(),
+      'root': S.string(),
       'styles': S.object(
-        properties: {
-          'font': S.string(description: 'The base font for this surface'),
-          'primaryColor': S.string(
-            description: 'The seed color for the theme of this surface.',
-          ),
-        },
+        properties: {'font': S.string(), 'primaryColor': S.string()},
       ),
     },
     required: [surfaceIdKey, 'root'],

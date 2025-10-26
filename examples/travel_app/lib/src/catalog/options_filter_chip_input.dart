@@ -130,7 +130,7 @@ final optionsFilterChipInput = CatalogItem(
               value: currentValue,
               onChanged: (newValue) {
                 if (path != null && newValue != null) {
-                  dataContext.update(DataPath(path), newValue);
+                  dataContext.update(path, newValue);
                 }
               },
             );
@@ -188,7 +188,6 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
-            var tempValue = _value;
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
                 return Column(
@@ -198,11 +197,11 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                       title: Text(option),
                       value: option,
                       // ignore: deprecated_member_use
-                      groupValue: tempValue,
+                      groupValue: _value,
                       // ignore: deprecated_member_use
                       onChanged: (String? newValue) {
                         setModalState(() {
-                          tempValue = newValue;
+                          _value = newValue;
                         });
                         widget.onChanged(newValue);
                         if (newValue != null) {

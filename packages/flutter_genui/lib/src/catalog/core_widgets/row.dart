@@ -7,17 +7,11 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
-import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
-import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
-    'children': A2uiSchemas.componentArrayReference(
-      description:
-          'Either an explicit list of widget IDs for the children, or a '
-          'template with a data binding to the list of children.',
-    ),
+    'children': A2uiSchemas.componentArrayReference(),
     'distribution': S.string(
       enumValues: [
         'start',
@@ -37,7 +31,7 @@ final _schema = S.object(
 
 extension type _RowData.fromMap(JsonMap _json) {
   factory _RowData({
-    Object? children,
+    required JsonMap children,
     String? distribution,
     String? alignment,
   }) => _RowData.fromMap({
@@ -46,7 +40,7 @@ extension type _RowData.fromMap(JsonMap _json) {
     'alignment': alignment,
   });
 
-  Object? get children => _json['children'];
+  JsonMap get children => _json['children'] as JsonMap;
   String? get distribution => _json['distribution'] as String?;
   String? get alignment => _json['alignment'] as String?;
 }
@@ -87,18 +81,6 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
   }
 }
 
-/// A catalog item for a widget that displays its children in a horizontal
-/// array.
-///
-/// ### Parameters:
-///
-/// - `children`: A list of child widget IDs to display in the row.
-/// - `distribution`: How the children should be placed along the main axis.
-///   Can be `start`, `center`, `end`, `spaceBetween`, `spaceAround`, or
-///   `spaceEvenly`. Defaults to `start`.
-/// - `alignment`: How the children should be placed along the cross axis.
-///   Can be `start`, `center`, `end`, `stretch`, or `baseline`. Defaults to
-///   `start`.
 final row = CatalogItem(
   name: 'Row',
   dataSchema: _schema,
@@ -112,31 +94,18 @@ final row = CatalogItem(
         required dataContext,
       }) {
         final rowData = _RowData.fromMap(data as JsonMap);
-        return ComponentChildrenBuilder(
-          childrenData: rowData.children,
-          dataContext: dataContext,
-          buildChild: buildChild,
-          explicitListBuilder: (children) {
-            return Row(
-              mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
-              crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
-              children: children,
-            );
-          },
-          templateListWidgetBuilder: (context, list, componentId, dataBinding) {
-            return Row(
-              mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
-              crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
-              children: [
-                for (var i = 0; i < list.length; i++)
-                  buildChild(
-                    componentId,
-                    dataContext.nested(DataPath('$dataBinding[$i]')),
-                  ),
-              ],
-            );
-          },
-        );
+        final children = rowData.children;
+        final explicitList = (children['explicitList'] as List?)
+            ?.cast<String>();
+        if (explicitList != null) {
+          return Row(
+            mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
+            crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
+            children: explicitList.map(buildChild).toList(),
+          );
+        }
+        // TODO(gspencer): Implement template lists.
+        return const SizedBox.shrink();
       },
   exampleData: [
     () => '''

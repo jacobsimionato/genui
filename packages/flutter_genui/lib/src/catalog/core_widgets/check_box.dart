@@ -8,7 +8,6 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../core/widget_utilities.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
-import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
@@ -27,14 +26,6 @@ extension type _CheckBoxData.fromMap(JsonMap _json) {
   JsonMap get value => _json['value'] as JsonMap;
 }
 
-/// A catalog item for a Material Design checkbox.
-///
-/// This widget displays a checkbox with a label.
-///
-/// ### Parameters:
-///
-/// - `label`: The text to display next to the checkbox.
-/// - `value`: The boolean value of the checkbox.
 final checkBox = CatalogItem(
   name: 'CheckBox',
   dataSchema: _schema,
@@ -62,7 +53,7 @@ final checkBox = CatalogItem(
                   onChanged: (newValue) {
                     final path = checkBoxData.value['path'] as String?;
                     if (path != null) {
-                      dataContext.update(DataPath(path), newValue);
+                      dataContext.update(path, newValue);
                     }
                   },
                 );

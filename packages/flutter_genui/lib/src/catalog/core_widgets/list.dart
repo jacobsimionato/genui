@@ -7,9 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
-import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
-import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
@@ -22,7 +20,7 @@ final _schema = S.object(
 
 extension type _ListData.fromMap(JsonMap _json) {
   factory _ListData({
-    required Object? children,
+    required JsonMap children,
     String? direction,
     String? alignment,
   }) => _ListData.fromMap({
@@ -31,20 +29,11 @@ extension type _ListData.fromMap(JsonMap _json) {
     'alignment': alignment,
   });
 
-  Object? get children => _json['children'];
+  JsonMap get children => _json['children'] as JsonMap;
   String? get direction => _json['direction'] as String?;
   String? get alignment => _json['alignment'] as String?;
 }
 
-/// A catalog item for a list of widgets.
-///
-/// ### Parameters:
-///
-/// - `children`: A list of child widget IDs to display in the list.
-/// - `direction`: The direction of the list. Can be `vertical` or
-///   `horizontal`. Defaults to `vertical`.
-/// - `alignment`: How the children should be placed along the cross axis.
-///   Can be `start`, `center`, `end`, or `stretch`. Defaults to `start`.
 final list = CatalogItem(
   name: 'List',
   dataSchema: _schema,
@@ -58,34 +47,19 @@ final list = CatalogItem(
         required dataContext,
       }) {
         final listData = _ListData.fromMap(data as JsonMap);
-        final direction = listData.direction == 'horizontal'
-            ? Axis.horizontal
-            : Axis.vertical;
-        return ComponentChildrenBuilder(
-          childrenData: listData.children,
-          dataContext: dataContext,
-          buildChild: buildChild,
-          explicitListBuilder: (children) {
-            return ListView(
-              shrinkWrap: true,
-              scrollDirection: direction,
-              children: children,
-            );
-          },
-          templateListWidgetBuilder: (context, list, componentId, dataBinding) {
-            return ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: direction,
-              itemCount: list.length,
-              itemBuilder: (context, index) {
-                final itemDataContext = dataContext.nested(
-                  DataPath('$dataBinding[$index]'),
-                );
-                return buildChild(componentId, itemDataContext);
-              },
-            );
-          },
-        );
+        final children = listData.children;
+        final explicitList = (children['explicitList'] as List?)
+            ?.cast<String>();
+        if (explicitList != null) {
+          return ListView(
+            scrollDirection: listData.direction == 'horizontal'
+                ? Axis.horizontal
+                : Axis.vertical,
+            children: explicitList.map(buildChild).toList(),
+          );
+        }
+        // TODO(gspencer): Implement template lists.
+        return const SizedBox.shrink();
       },
   exampleData: [
     () => '''

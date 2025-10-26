@@ -26,7 +26,7 @@ void main() {
                   },
                 },
                 id: 'test_image',
-                buildChild: (_, [_]) => const SizedBox(),
+                buildChild: (String id) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 context: context,
                 dataContext: DataContext(DataModel(), '/'),

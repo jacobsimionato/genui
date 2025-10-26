@@ -8,9 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
-import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
-import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
@@ -30,16 +28,14 @@ final _schema = S.object(
       enumValues: ['start', 'center', 'end', 'stretch', 'baseline'],
     ),
     'children': A2uiSchemas.componentArrayReference(
-      description:
-          'Either an explicit list of widget IDs for the children, or a '
-          'template with a data binding to the list of children.',
+      description: 'A list of widget IDs for the children.',
     ),
   },
 );
 
 extension type _ColumnData.fromMap(JsonMap _json) {
   factory _ColumnData({
-    Object? children,
+    JsonMap? children,
     String? distribution,
     String? alignment,
   }) => _ColumnData.fromMap({
@@ -48,7 +44,7 @@ extension type _ColumnData.fromMap(JsonMap _json) {
     'alignment': alignment,
   });
 
-  Object? get children => _json['children'];
+  JsonMap? get children => _json['children'] as JsonMap?;
   String? get distribution => _json['distribution'] as String?;
   String? get alignment => _json['alignment'] as String?;
 }
@@ -87,17 +83,6 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
   }
 }
 
-/// A catalog item for a widget that displays its children in a vertical array.
-///
-/// ### Parameters:
-///
-/// - `distribution`: How the children should be placed along the main axis.
-///   Can be `start`, `center`, `end`, `spaceBetween`, `spaceAround`, or
-///   `spaceEvenly`. Defaults to `start`.
-/// - `alignment`: How the children should be placed along the cross axis.
-///   Can be `start`, `center`, `end`, `stretch`, or `baseline`. Defaults to
-///   `start`.
-/// - `children`: A list of child widget IDs to display in the column.
 final column = CatalogItem(
   name: 'Column',
   dataSchema: _schema,
@@ -111,39 +96,18 @@ final column = CatalogItem(
         required dataContext,
       }) {
         final columnData = _ColumnData.fromMap(data as JsonMap);
-        return ComponentChildrenBuilder(
-          childrenData: columnData.children,
-          dataContext: dataContext,
-          buildChild: buildChild,
-          explicitListBuilder: (children) {
-            return Column(
-              mainAxisAlignment: _parseMainAxisAlignment(
-                columnData.distribution,
-              ),
-              crossAxisAlignment: _parseCrossAxisAlignment(
-                columnData.alignment,
-              ),
-              children: children,
-            );
-          },
-          templateListWidgetBuilder: (context, list, componentId, dataBinding) {
-            return Column(
-              mainAxisAlignment: _parseMainAxisAlignment(
-                columnData.distribution,
-              ),
-              crossAxisAlignment: _parseCrossAxisAlignment(
-                columnData.alignment,
-              ),
-              children: [
-                for (var i = 0; i < list.length; i++)
-                  buildChild(
-                    componentId,
-                    dataContext.nested(DataPath('$dataBinding[$i]')),
-                  ),
-              ],
-            );
-          },
-        );
+        final children = columnData.children;
+        final explicitList = (children?['explicitList'] as List?)
+            ?.cast<String>();
+        if (explicitList != null) {
+          return Column(
+            mainAxisAlignment: _parseMainAxisAlignment(columnData.distribution),
+            crossAxisAlignment: _parseCrossAxisAlignment(columnData.alignment),
+            children: explicitList.map(buildChild).toList(),
+          );
+        }
+        // TODO(gspencer): Implement template lists.
+        return const SizedBox.shrink();
       },
   exampleData: [
     () => '''
