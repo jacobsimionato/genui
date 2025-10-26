@@ -152,21 +152,37 @@ class FirebaseAiContentGenerator implements ContentGenerator {
       '${isForcedToolCalling ? ' with forced tool calling' : ''}',
     );
     // Create an "output" tool that copies its args into the output.
-    final finalOutputAiTool = isForcedToolCalling
-        ? DynamicAiTool<Map<String, Object?>>(
-            name: outputToolName,
-            description:
-                '''Returns the final output. Call this function ONLY when you have your complete structured output that conforms to the required schema. Do not call this if you need to use other tools first. You MUST call this tool when you are done.''',
-            // Wrap the outputSchema in an object so that the output schema
-            // isn't limited to objects.
-            parameters: dsb.S.object(properties: {'output': outputSchema!}),
-            invokeFunction: (args) async => args, // Invoke is a pass-through
-          )
-        : null;
+    final finalOutputAiTool = DynamicAiTool<Map<String, Object?>>(
+      name: outputToolName,
+      description:
+          '''Returns the final output. Call this function ONLY when you have your complete structured output that conforms to the required schema. Do not call this if you need to use other tools first. You MUST call this tool when you are done.''',
+      // Wrap the outputSchema in an object so that the output schema
+      // isn't limited to objects.
+      parameters: dsb.S.object(
+        properties: {
+          'output': outputSchema ??
+              dsb.S.object(
+                properties: {
+                  'result': dsb.S.boolean(
+                    description: 'Successfully generated a response UI.',
+                  ),
+                  'message': dsb.S.string(
+                    description:
+                        'A message about what went wrong, or a message responding to '
+                        'the request. Take into account any UI that has been '
+                        "generated, so there's no need to duplicate requests or "
+                        'information already present in the UI.',
+                  ),
+                },
+                required: ['result'],
+              )
+        },
+        required: ['output'],
+      ),
+      invokeFunction: (args) async => args, // Invoke is a pass-through
+    );
 
-    final allTools = isForcedToolCalling
-        ? [...availableTools, finalOutputAiTool!]
-        : availableTools;
+    final allTools = [...availableTools, finalOutputAiTool];
     genUiLogger.fine(
       'Available tools: ${allTools.map((t) => t.name).join(', ')}',
     );
@@ -363,13 +379,11 @@ class FirebaseAiContentGenerator implements ContentGenerator {
           ? null
           : Content.system(systemInstruction!),
       tools: generativeAiTools,
-      toolConfig: isForcedToolCalling
-          ? ToolConfig(
-              functionCallingConfig: FunctionCallingConfig.any(
-                allowedFunctionNames.toSet(),
-              ),
-            )
-          : ToolConfig(functionCallingConfig: FunctionCallingConfig.auto()),
+      toolConfig: ToolConfig(
+        functionCallingConfig: FunctionCallingConfig.any(
+          allowedFunctionNames.toSet(),
+        ),
+      ),
     );
 
     while (toolUsageCycle < maxToolUsageCycles) {
