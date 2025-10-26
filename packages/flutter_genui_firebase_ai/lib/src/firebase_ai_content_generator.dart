@@ -104,13 +104,9 @@ class FirebaseAiContentGenerator implements ContentGenerator {
   }
 
   @override
-  Future<void> sendRequest(
-    ChatMessage message, {
-    Iterable<ChatMessage>? history,
-  }) async {
+  Future<void> sendRequest(Iterable<ChatMessage> messages) async {
     _isProcessing.value = true;
     try {
-      final messages = [...?history, message];
       await _generate(messages: messages);
     } catch (e, st) {
       genUiLogger.severe('Error generating content', e, st);

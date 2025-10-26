@@ -25,11 +25,8 @@ class FakeContentGenerator implements ContentGenerator {
   /// The number of times [sendRequest] has been called.
   int sendRequestCallCount = 0;
 
-  /// The last message passed to [sendRequest].
-  ChatMessage? lastMessage;
-
-  /// The last history passed to [sendRequest].
-  Iterable<ChatMessage>? lastHistory;
+  /// The last messages passed to [sendRequest].
+  Iterable<ChatMessage>? lastMessages;
 
   @override
   Stream<A2uiMessage> get a2uiMessageStream => _a2uiMessageController.stream;
@@ -52,15 +49,11 @@ class FakeContentGenerator implements ContentGenerator {
   }
 
   @override
-  Future<void> sendRequest(
-    ChatMessage message, {
-    Iterable<ChatMessage>? history,
-  }) async {
+  Future<void> sendRequest(Iterable<ChatMessage> messages) async {
     _isProcessing.value = true;
     try {
       sendRequestCallCount++;
-      lastMessage = message;
-      lastHistory = history;
+      lastMessages = messages;
       if (sendRequestCompleter != null) {
         await sendRequestCompleter!.future;
       }
