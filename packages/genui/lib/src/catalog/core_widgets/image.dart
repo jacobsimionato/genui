@@ -21,23 +21,23 @@ final _schema = S.object(
       description: 'How the image should be inscribed into the box.',
       enumValues: BoxFit.values.map((e) => e.name).toList(),
     ),
-    'usageHint': S.string(
-      description: '''A hint for the image size and style. One of:
-      - icon: Small square icon.
-      - avatar: Circular avatar image.
-      - smallFeature: Small feature image.
-      - mediumFeature: Medium feature image.
-      - largeFeature: Large feature image.
-      - header: Full-width, full bleed, header image.''',
-      enumValues: [
-        'icon',
-        'avatar',
-        'smallFeature',
-        'mediumFeature',
-        'largeFeature',
-        'header',
-      ],
-    ),
+    // 'usageHint': S.string(
+    //   description: '''A hint for the image size and style. One of:
+    //   - icon: Small square icon.
+    //   - avatar: Circular avatar image.
+    //   - smallFeature: Small feature image.
+    //   - mediumFeature: Medium feature image.
+    //   - largeFeature: Large feature image.
+    //   - header: Full-width, full bleed, header image.''',
+    //   enumValues: [
+    //     'icon',
+    //     'avatar',
+    //     'smallFeature',
+    //     'mediumFeature',
+    //     'largeFeature',
+    //     'header',
+    //   ],
+    // ),
   },
 );
 
