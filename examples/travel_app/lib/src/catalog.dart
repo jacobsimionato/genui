@@ -38,7 +38,6 @@ final Catalog travelAppCatalog = CoreCatalogItems.asCatalog()
       CoreCatalogItems.slider,
       CoreCatalogItems.tabs,
       CoreCatalogItems.video,
-      CoreCatalogItems.modal,
       CoreCatalogItems.icon,
       CoreCatalogItems.row,
       CoreCatalogItems.image,
