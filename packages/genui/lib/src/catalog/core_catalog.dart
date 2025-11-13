@@ -64,6 +64,13 @@ class CoreCatalogItems {
   /// source.
   static final CatalogItem image = image_item.image;
 
+  /// Represents a UI element for displaying image data from a URL or other
+  /// source without letting the LLM determine the size.
+  ///
+  /// This is not included in the core catalog by default - instead it is a
+  /// variant of a core catalog item that can be included in custom catalogs.
+  static final CatalogItem imageFixedSize = image_item.imageFixedSize;
+
   /// Represents a scrollable list of child widgets.
   ///
   /// Can be configured to lay out items linearly.

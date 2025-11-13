@@ -38,10 +38,10 @@ final text = CatalogItem(
         description:
             '''While simple Markdown is supported (without HTML or image references), utilizing dedicated UI components is generally preferred for a richer and more structured presentation.''',
       ),
-      // 'usageHint': S.string(
-      //   description: 'A usage hint for the base text style.',
-      //   enumValues: ['h1', 'h2', 'h3', 'h4', 'h5', 'caption', 'body'],
-      // ),
+      'usageHint': S.string(
+        description: 'A usage hint for the base text style.',
+        enumValues: ['h1', 'h2', 'h3', 'h4', 'h5', 'caption', 'body'],
+      ),
     },
     required: ['text'],
   ),

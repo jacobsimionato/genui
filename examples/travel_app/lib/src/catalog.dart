@@ -41,8 +41,10 @@ final Catalog travelAppCatalog = CoreCatalogItems.asCatalog()
       CoreCatalogItems.modal,
       CoreCatalogItems.icon,
       CoreCatalogItems.row,
+      CoreCatalogItems.image,
     ])
     .copyWith([
+      CoreCatalogItems.imageFixedSize,
       checkboxFilterChipsInput,
       dateInputChip,
       informationCard,
