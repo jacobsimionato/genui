@@ -38,7 +38,7 @@ and a `ContentGenerator`.
     class _MyHomePageState extends State<MyHomePage> {
       late final GenUiManager _genUiManager;
       late final GenUiConversation _genUiConversation;
-      final _surfaceIds = <String>[];
+      final _messages = <ChatMessage>[];
 
       @override
       void initState() {
@@ -65,7 +65,14 @@ and a `ContentGenerator`.
       }
 
       void _onSurfaceAdded(SurfaceAdded update) {
-        setState(() => _surfaceIds.add(update.surfaceId));
+        setState(() {
+          _messages.add(
+            AiUiMessage(
+              definition: update.definition,
+              surfaceId: update.surfaceId,
+            ),
+          );
+        });
       }
 
       void _onSurfaceUpdated(SurfaceUpdated update) {
@@ -75,7 +82,11 @@ and a `ContentGenerator`.
       }
 
       void _onSurfaceDeleted(SurfaceRemoved update) {
-        setState(() => _surfaceIds.remove(update.surfaceId));
+        setState(
+          () => _messages.removeWhere(
+            (m) => m is AiUiMessage && m.surfaceId == update.surfaceId,
+          ),
+        );
       }
 
       @override
@@ -163,4 +174,3 @@ To receive and display generated UI:
       }
     }
     ```
-   ```
