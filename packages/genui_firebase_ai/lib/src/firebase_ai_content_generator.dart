@@ -412,16 +412,10 @@ With functions:
       );
       final inferenceStartTime = DateTime.now();
       GenerateContentResponse response;
-      try {
-        response = await model.generateContent(mutableContent);
-        genUiLogger.finest(
-          'Raw model response: ${_responseToString(response)}',
-        );
-      } catch (e, st) {
-        genUiLogger.severe('Error from model.generateContent', e, st);
-        _errorController.add(ContentGeneratorError(e, st));
-        rethrow;
-      }
+
+      response = await model.generateContent(mutableContent);
+      genUiLogger.finest('Raw model response: ${_responseToString(response)}');
+
       final Duration elapsed = DateTime.now().difference(inferenceStartTime);
 
       if (response.usageMetadata != null) {
