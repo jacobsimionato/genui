@@ -2,7 +2,8 @@
 title: Connecting to an agent provider
 description: |
   Instructions for connecting `genui` to the agent provider of your
-  choice.
+  choice. See `setup.md` for a description of the different `ContentGenerator`
+  implementations that are available.
 ---
 
 Follow these steps to connect `genui` to an agent provider and give

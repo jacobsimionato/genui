@@ -4,7 +4,25 @@ Use the following instructions to add `genui` to your Flutter app. The
 code examples show how to perform the instructions on a brand new app created by
 running `flutter create`.
 
-## 1. Configure your agent provider
+## 1. Choosing a ContentGenerator
+
+`genui` provides three `ContentGenerator` implementations for connecting to
+different types of agent providers. Use the following guide to choose the one
+that best fits your needs.
+
+- **`FirebaseAiContentGenerator`**: Use this when you are ready to deploy your
+  app. This generator connects to Gemini via Firebase AI Logic, and is the
+  recommended approach for production apps.
+
+- **`GoogleGenerativeAiContentGenerator`**: Use this for prototyping and local
+  development. This generator connects to the Google Generative AI API using an
+  API key, and is a good choice for getting started quickly.
+
+- **`A2uiContentGenerator`**: Use this to connect to a server that implements
+  the A2UI protocol. This is a good choice if you have an existing agent that
+  you want to connect to `genui`.
+
+## 2. Configure your agent provider
 
 `genui` can connect to a variety of agent providers. Choose the section
 below for your preferred provider.
@@ -75,6 +93,19 @@ To use `genui` with the Google Generative AI API, use the
 
 2. Use the `GoogleGenerativeAiContentGenerator` to connect to the Google
    Generative AI API. You will need to provide your own API key.
+
+### Connecting to a custom backend
+
+There are two ways to connect to a custom backend.
+
+1.  Use the `genui_a2ui` package to connect to a server that implements the
+    A2UI protocol. This is the recommended approach if you have an existing
+    agent that you want to connect to `genui`.
+
+2.  Implement your own `ContentGenerator`. This is a good choice if you have a
+    custom backend that does not implement the A2UI protocol. This will require
+    you to convert your UI data source into a stream of `A2uiMessage` messages
+    that can be rendered by the Gen UI SDK.
 
 ## 2. Create the connection to an agent
 
