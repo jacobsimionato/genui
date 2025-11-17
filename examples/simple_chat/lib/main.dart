@@ -89,7 +89,7 @@ IMPORTANT: When you generate UI in a response, you MUST always create
 a new surface with a unique `surfaceId`. Do NOT reuse or update
 existing `surfaceId`s. Each UI response must be in its own new surface.
 
-'${GenUiPromptFragments.basicChat}''';
+${GenUiPromptFragments.basicChat}''';
 
     // Create the appropriate content generator based on configuration
     final ContentGenerator contentGenerator = switch (aiBackend) {

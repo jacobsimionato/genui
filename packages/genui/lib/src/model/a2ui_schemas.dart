@@ -85,7 +85,7 @@ class A2uiSchemas {
       'name': S.string(),
       'context': S.list(
         description:
-            'A list of name-value pairs to be sent with the action to include'
+            'A list of name-value pairs to be sent with the action to include '
             'data associated with the action, e.g. values that are submitted.',
         items: S.object(
           properties: {
@@ -95,8 +95,8 @@ class A2uiSchemas {
                 'path': S.string(
                   description:
                       'A path in the data model which should be bound to an '
-                      'input element, e.g. a string reference for a text field,'
-                      'or number reference for a slider.',
+                      'input element, e.g. a string reference for a text '
+                      'field, or number reference for a slider.',
                 ),
                 'literalString': S.string(
                   description: 'A literal string relevant to the action',
