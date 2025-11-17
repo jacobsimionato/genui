@@ -3,6 +3,10 @@
 A Flutter library to enable developers to easily add interactive
 generative UI to their applications.
 
+See the [Getting started with GenUI](https://www.youtube.com/watch?v=nWr6eZKM6no) video for an overview of the package.
+
+[<img src="docs/assets/genui_intro_video_still.png" alt="GenUI Intro video still" height="500">](https://www.youtube.com/watch?v=nWr6eZKM6no)
+
 ## Status: Highly Experimental
 
 This is a highly experimental package, which means the API will change (sometimes drastically).
