@@ -88,10 +88,6 @@ final dateTimeInput = CatalogItem(
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2100),
               );
-              if (selectedDate == null) {
-                // User dismissed the date picker.
-                return;
-              }
             }
 
             if (dateTimeInputData.enableTime) {
@@ -99,49 +95,56 @@ final dateTimeInput = CatalogItem(
                 context: itemContext.buildContext,
                 initialTime: TimeOfDay.now(),
               );
-              if (selectedTime == null) {
-                // User dismissed the time picker.
-                return;
-              }
             }
 
             String formattedValue;
             final String? outputFormat = dateTimeInputData.outputFormat;
-            if (selectedDate != null && selectedTime != null) {
-              final dateTime = DateTime(
-                selectedDate.year,
-                selectedDate.month,
-                selectedDate.day,
-                selectedTime.hour,
-                selectedTime.minute,
-              );
-              formattedValue =
-                  (outputFormat != null
-                          ? DateFormat(outputFormat)
-                          : DateFormat.yMd().add_jm())
-                      .format(dateTime);
-            } else if (selectedDate != null) {
-              formattedValue =
-                  (outputFormat != null
-                          ? DateFormat(outputFormat)
-                          : DateFormat.yMd())
-                      .format(selectedDate);
-            } else if (selectedTime != null) {
-              final now = DateTime.now();
-              final time = DateTime(
-                now.year,
-                now.month,
-                now.day,
-                selectedTime.hour,
-                selectedTime.minute,
-              );
-              formattedValue =
-                  (outputFormat != null
-                          ? DateFormat(outputFormat)
-                          : DateFormat.jm())
-                      .format(time);
+            final MaterialLocalizations localizations =
+                MaterialLocalizations.of(itemContext.buildContext);
+
+            if (outputFormat != null) {
+              // Use the provided format string.
+              final DateTime dateTime;
+              if (selectedDate != null && selectedTime != null) {
+                dateTime = DateTime(
+                  selectedDate.year,
+                  selectedDate.month,
+                  selectedDate.day,
+                  selectedTime.hour,
+                  selectedTime.minute,
+                );
+              } else if (selectedDate != null) {
+                dateTime = selectedDate;
+              } else if (selectedTime != null) {
+                final now = DateTime.now();
+                dateTime = DateTime(
+                  now.year,
+                  now.month,
+                  now.day,
+                  selectedTime.hour,
+                  selectedTime.minute,
+                );
+              } else {
+                return;
+              }
+              formattedValue = DateFormat(outputFormat).format(dateTime);
             } else {
-              return;
+              // Use MaterialLocalizations for default formatting.
+              if (selectedDate != null && selectedTime != null) {
+                final String formattedDate = localizations.formatShortDate(
+                  selectedDate,
+                );
+                final String formattedTime = localizations.formatTimeOfDay(
+                  selectedTime,
+                );
+                formattedValue = '$formattedDate $formattedTime';
+              } else if (selectedDate != null) {
+                formattedValue = localizations.formatShortDate(selectedDate);
+              } else if (selectedTime != null) {
+                formattedValue = localizations.formatTimeOfDay(selectedTime);
+              } else {
+                return;
+              }
             }
 
             itemContext.dataContext.update(DataPath(path), formattedValue);
