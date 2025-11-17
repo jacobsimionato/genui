@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../core/widget_utilities.dart';
@@ -76,32 +77,74 @@ final dateTimeInput = CatalogItem(
             if (path == null) {
               return;
             }
+
+            DateTime? selectedDate;
+            TimeOfDay? selectedTime;
+
             if (dateTimeInputData.enableDate) {
-              final DateTime? date = await showDatePicker(
+              selectedDate = await showDatePicker(
                 context: itemContext.buildContext,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2100),
               );
-              if (date != null) {
-                itemContext.dataContext.update(
-                  DataPath(path),
-                  date.toIso8601String(),
-                );
+              if (selectedDate == null) {
+                // User dismissed the date picker.
+                return;
               }
             }
+
             if (dateTimeInputData.enableTime) {
-              final TimeOfDay? time = await showTimePicker(
+              selectedTime = await showTimePicker(
                 context: itemContext.buildContext,
                 initialTime: TimeOfDay.now(),
               );
-              if (time != null) {
-                itemContext.dataContext.update(
-                  DataPath(path),
-                  time.format(itemContext.buildContext),
-                );
+              if (selectedTime == null) {
+                // User dismissed the time picker.
+                return;
               }
             }
+
+            String formattedValue;
+            final String? outputFormat = dateTimeInputData.outputFormat;
+            if (selectedDate != null && selectedTime != null) {
+              final dateTime = DateTime(
+                selectedDate.year,
+                selectedDate.month,
+                selectedDate.day,
+                selectedTime.hour,
+                selectedTime.minute,
+              );
+              formattedValue =
+                  (outputFormat != null
+                          ? DateFormat(outputFormat)
+                          : DateFormat.yMd().add_jm())
+                      .format(dateTime);
+            } else if (selectedDate != null) {
+              formattedValue =
+                  (outputFormat != null
+                          ? DateFormat(outputFormat)
+                          : DateFormat.yMd())
+                      .format(selectedDate);
+            } else if (selectedTime != null) {
+              final now = DateTime.now();
+              final time = DateTime(
+                now.year,
+                now.month,
+                now.day,
+                selectedTime.hour,
+                selectedTime.minute,
+              );
+              formattedValue =
+                  (outputFormat != null
+                          ? DateFormat(outputFormat)
+                          : DateFormat.jm())
+                      .format(time);
+            } else {
+              return;
+            }
+
+            itemContext.dataContext.update(DataPath(path), formattedValue);
           },
         );
       },
