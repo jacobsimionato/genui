@@ -75,7 +75,7 @@ based on a widget catalog from the developers' project.
 ## Connecting to an AI Agent
 
 The `genui` framework uses a `ContentGenerator` to communicate with a generative AI model,
-allowing `genui` to be backend-agnostic. You can choose the implementation that best fits
+allowing `genui` to be backend agnostic. You can choose the implementation that best fits
 your needs, whether it's `FirebaseAiContentGenerator` for production apps,
 `GoogleGenerativeAiContentGenerator` for rapid prototyping, or `A2uiContentGenerator` for
 custom agent servers.
