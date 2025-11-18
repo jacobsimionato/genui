@@ -64,12 +64,20 @@ final tabs = CatalogItem(
               );
             }).toList(),
           ),
-          Expanded(
-            child: TabBarView(
-              children: tabsData.tabItems.map((tabItem) {
-                return itemContext.buildChild(tabItem['child'] as String);
-              }).toList(),
-            ),
+          Builder(
+            builder: (context) {
+              final TabController tabController = DefaultTabController.of(
+                context,
+              );
+              return AnimatedBuilder(
+                animation: tabController,
+                builder: (context, child) {
+                  return itemContext.buildChild(
+                    tabsData.tabItems[tabController.index]['child'] as String,
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
