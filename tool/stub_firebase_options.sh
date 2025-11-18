@@ -11,6 +11,8 @@ cp -f examples/simple_chat/lib/firebase_options_stub.dart examples/simple_chat/l
 
 cp -f examples/simple_chat/macos/Runner/GoogleService-Info-stub.plist examples/simple_chat/macos/Runner/GoogleService-Info.plist
 cp -f examples/simple_chat/ios/Runner/GoogleService-Info-stub.plist examples/simple_chat/ios/Runner/GoogleService-Info.plist
+cp -f examples/simple_chat/android/google-services-stub.json examples/simple_chat/android/google-services.json
 
 cp -f examples/travel_app/macos/Runner/GoogleService-Info-stub.plist examples/simple_chat/macos/Runner/GoogleService-Info.plist
 cp -f examples/travel_app/ios/Runner/GoogleService-Info-stub.plist examples/simple_chat/ios/Runner/GoogleService-Info.plist
+cp -f examples/travel_app/android/google-services-stub.json examples/simple_chat/android/google-services.json
