@@ -159,33 +159,35 @@ class GenUiManager implements GenUiHost {
     switch (message) {
       case SurfaceUpdate():
         final String surfaceId = message.surfaceId;
-        final ValueNotifier<UiDefinition?> notifier =
-            getSurfaceNotifier(surfaceId);
+        final bool isNewSurface = !_surfaces.containsKey(surfaceId);
+        final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
+          surfaceId,
+        );
 
-        // Caching logic remains the same
         UiDefinition uiDefinition =
             notifier.value ?? UiDefinition(surfaceId: surfaceId);
-        final Map<String, Component> newComponents =
-            Map.of(uiDefinition.components);
+        final Map<String, Component> newComponents = Map.of(
+          uiDefinition.components,
+        );
         for (final Component component in message.components) {
           newComponents[component.id] = component;
         }
         uiDefinition = uiDefinition.copyWith(components: newComponents);
         notifier.value = uiDefinition;
 
-        // Notify UI ONLY if rendering has begun (i.e., rootComponentId is set)
-        if (uiDefinition.rootComponentId != null) {
+        if (isNewSurface) {
+          genUiLogger.info('Adding new surface $surfaceId');
+          _surfaceUpdates.add(SurfaceAdded(surfaceId, uiDefinition));
+        } else {
           genUiLogger.info('Updating surface $surfaceId');
           _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
-        } else {
-          genUiLogger.info(
-              'Caching components for surface $surfaceId (pre-rendering)');
         }
       case BeginRendering():
         final String surfaceId = message.surfaceId;
         dataModelForSurface(surfaceId);
-        final ValueNotifier<UiDefinition?> notifier =
-            getSurfaceNotifier(surfaceId);
+        final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
+          surfaceId,
+        );
 
         // Update the definition with the root component
         final UiDefinition uiDefinition =
@@ -195,9 +197,8 @@ class GenUiManager implements GenUiHost {
         );
         notifier.value = newUiDefinition;
 
-        // ALWAYS fire SurfaceAdded, as this is the signal to start rendering.
-        genUiLogger.info('Creating and rendering surface $surfaceId');
-        _surfaceUpdates.add(SurfaceAdded(surfaceId, newUiDefinition));
+        genUiLogger.info('Start rendering surface $surfaceId');
+        _surfaceUpdates.add(SurfaceUpdated(surfaceId, newUiDefinition));
       case DataModelUpdate():
         final String path = message.path ?? '/';
         genUiLogger.info(
@@ -209,8 +210,10 @@ class GenUiManager implements GenUiHost {
         dataModel.update(DataPath(path), message.contents);
 
         // Notify UI of an update if the surface is already rendering
-        final notifier = getSurfaceNotifier(message.surfaceId);
-        final uiDefinition = notifier.value;
+        final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
+          message.surfaceId,
+        );
+        final UiDefinition? uiDefinition = notifier.value;
         if (uiDefinition != null && uiDefinition.rootComponentId != null) {
           _surfaceUpdates.add(SurfaceUpdated(message.surfaceId, uiDefinition));
         }
@@ -218,8 +221,9 @@ class GenUiManager implements GenUiHost {
         final String surfaceId = message.surfaceId;
         if (_surfaces.containsKey(surfaceId)) {
           genUiLogger.info('Deleting surface $surfaceId');
-          final ValueNotifier<UiDefinition?>? notifier =
-              _surfaces.remove(surfaceId);
+          final ValueNotifier<UiDefinition?>? notifier = _surfaces.remove(
+            surfaceId,
+          );
           notifier?.dispose();
           _dataModels.remove(surfaceId);
           _surfaceUpdates.add(SurfaceRemoved(surfaceId));

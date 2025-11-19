@@ -80,6 +80,9 @@ void main() {
         manager.handleMessage(
           SurfaceUpdate(surfaceId: surfaceId, components: oldComponents),
         );
+        manager.handleMessage(
+          const BeginRendering(surfaceId: surfaceId, root: 'root'),
+        );
 
         final newComponents = [
           const Component(
