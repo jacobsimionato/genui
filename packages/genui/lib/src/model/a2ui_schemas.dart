@@ -146,46 +146,53 @@ class A2uiSchemas {
   /// Schema for a beginRendering message, which provides the root widget ID for
   /// the given surface so that the surface can be rendered.
   static Schema beginRenderingSchema() => S.object(
-    properties: {
-      surfaceIdKey: S.string(
-        description: 'The surface ID of the surface to render.',
-      ),
-      'root': S.string(
         description:
-            'The root widget ID for the surface. '
-            'All components must be descendents of this root in order to be '
-            'displayed.',
-      ),
-      'styles': S.object(
+            'A message which can be sent before or after surfaceUpdate to '
+            'begin rendering a surface with a given ID. Any surfaceUpdate messages '
+            'sent before this message will be cached but not trigger any rendering '
+            ' yet. The surfaceId *must* match associated surfaceUpdate or '
+            'dataModelUpdate messages.',
         properties: {
-          'font': S.string(description: 'The base font for this surface'),
-          'primaryColor': S.string(
-            description: 'The seed color for the theme of this surface.',
+          surfaceIdKey: S.string(
+            description: 'The surface ID of the surface to render. Depending '
+                'on the configuration, this may need to be a new, unique ID.',
+          ),
+          'root': S.string(
+            description:
+                'The root widget ID for the surface. '
+                'All components must be descendents of this root in order to be '
+                'displayed.',
+          ),
+          'styles': S.object(
+            properties: {
+              'font': S.string(description: 'The base font for this surface'),
+              'primaryColor': S.string(
+                description: 'The seed color for the theme of this surface.',
+              ),
+            },
           ),
         },
-      ),
-    },
-    required: [surfaceIdKey, 'root'],
-  );
+        required: [surfaceIdKey, 'root'],
+      );
 
   /// Schema for a `deleteSurface` message which will delete the given surface.
   static Schema surfaceDeletionSchema() => S.object(
-    properties: {surfaceIdKey: S.string()},
-    required: [surfaceIdKey],
-  );
+        properties: {surfaceIdKey: S.string()},
+        required: [surfaceIdKey],
+      );
 
   /// Schema for a `dataModelUpdate` message which will update the given path in
   /// the data model. If the path is omitted, the entire data model is replaced.
   static Schema dataModelUpdateSchema() => S.object(
-    properties: {
-      surfaceIdKey: S.string(),
-      'path': S.string(),
-      'contents': S.any(
-        description: 'The new contents to write to the data model.',
-      ),
-    },
-    required: [surfaceIdKey, 'contents'],
-  );
+        properties: {
+          surfaceIdKey: S.string(),
+          'path': S.string(),
+          'contents': S.any(
+            description: 'The new contents to write to the data model.',
+          ),
+        },
+        required: [surfaceIdKey, 'contents'],
+      );
 
   /// Schema for a `surfaceUpdate` message which defines the components to be
   /// rendered on a surface.
@@ -198,7 +205,8 @@ class A2uiSchemas {
       case SurfaceUpdateMode.create:
         surfaceIdDescription =
             'The unique identifier for the new UI surface to create. This '
-            '*must* be a new, unique identifier.';
+            '*must* be a new identifier different to any existing surfaces '
+            'that have already been displayed.';
         break;
       case SurfaceUpdateMode.update:
         surfaceIdDescription =
