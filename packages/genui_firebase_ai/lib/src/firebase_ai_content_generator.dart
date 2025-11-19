@@ -361,9 +361,16 @@ class FirebaseAiContentGenerator implements ContentGenerator {
           name: 'surfaceUpdate',
           description: 'Updates an existing UI surface.',
         ),
-      if (configuration.actions.allowCreate ||
-          configuration.actions.allowUpdate)
-        BeginRenderingTool(handleMessage: _a2uiMessageController.add),
+      if (configuration.actions.allowCreate)
+        BeginRenderingTool(
+          handleMessage: _a2uiMessageController.add,
+          updateMode: SurfaceUpdateMode.create,
+        ),
+      if (configuration.actions.allowUpdate)
+        BeginRenderingTool(
+          handleMessage: _a2uiMessageController.add,
+          updateMode: SurfaceUpdateMode.update,
+        ),
       if (configuration.actions.allowDelete)
         DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
       ...additionalTools,
