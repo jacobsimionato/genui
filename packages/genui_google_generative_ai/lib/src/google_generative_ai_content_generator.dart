@@ -344,15 +344,27 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
 
     try {
       final availableTools = [
-        if (configuration.actions.allowCreate ||
-            configuration.actions.allowUpdate) ...[
+        if (configuration.actions.allowCreate)
           SurfaceUpdateTool(
             handleMessage: _a2uiMessageController.add,
             catalog: catalog,
             configuration: configuration,
+            updateMode: SurfaceUpdateMode.create,
+            name: 'surfaceCreate',
+            description: 'Creates a new UI surface.',
           ),
+        if (configuration.actions.allowUpdate)
+          SurfaceUpdateTool(
+            handleMessage: _a2uiMessageController.add,
+            catalog: catalog,
+            configuration: configuration,
+            updateMode: SurfaceUpdateMode.update,
+            name: 'surfaceUpdate',
+            description: 'Updates an existing UI surface.',
+          ),
+        if (configuration.actions.allowCreate ||
+            configuration.actions.allowUpdate)
           BeginRenderingTool(handleMessage: _a2uiMessageController.add),
-        ],
         if (configuration.actions.allowDelete)
           DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
         ...additionalTools,

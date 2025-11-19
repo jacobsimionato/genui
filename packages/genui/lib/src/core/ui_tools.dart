@@ -22,11 +22,17 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
     required this.handleMessage,
     required Catalog catalog,
     required this.configuration,
+    required SurfaceUpdateMode updateMode,
+    String name = 'surfaceUpdate',
+    String description = 'Updates a surface with a new set of components.',
   }) : super(
-         name: 'surfaceUpdate',
-         description: 'Updates a surface with a new set of components.',
-         parameters: A2uiSchemas.surfaceUpdateSchema(catalog),
-       );
+          name: name,
+          description: description,
+          parameters: A2uiSchemas.surfaceUpdateSchema(
+            catalog,
+            updateMode: updateMode,
+          ),
+        );
 
   /// The callback to invoke when adding or updating a surface.
   final void Function(A2uiMessage message) handleMessage;
@@ -58,19 +64,19 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
 class DeleteSurfaceTool extends AiTool<JsonMap> {
   /// Creates a [DeleteSurfaceTool].
   DeleteSurfaceTool({required this.handleMessage})
-    : super(
-        name: 'deleteSurface',
-        description: 'Removes a UI surface that is no longer needed.',
-        parameters: S.object(
-          properties: {
-            surfaceIdKey: S.string(
-              description:
-                  'The unique identifier for the UI surface to remove.',
-            ),
-          },
-          required: [surfaceIdKey],
-        ),
-      );
+      : super(
+          name: 'deleteSurface',
+          description: 'Removes a UI surface that is no longer needed.',
+          parameters: S.object(
+            properties: {
+              surfaceIdKey: S.string(
+                description:
+                    'The unique identifier for the UI surface to remove.',
+              ),
+            },
+            required: [surfaceIdKey],
+          ),
+        );
 
   /// The callback to invoke when deleting a surface.
   final void Function(A2uiMessage message) handleMessage;
@@ -89,26 +95,26 @@ class DeleteSurfaceTool extends AiTool<JsonMap> {
 class BeginRenderingTool extends AiTool<JsonMap> {
   /// Creates a [BeginRenderingTool].
   BeginRenderingTool({required this.handleMessage})
-    : super(
-        name: 'beginRendering',
-        description:
-            'Signals the client to begin rendering a surface with a '
-            'root component.',
-        parameters: S.object(
-          properties: {
-            surfaceIdKey: S.string(
-              description:
-                  'The unique identifier for the UI surface to render.',
-            ),
-            'root': S.string(
-              description:
-                  'The ID of the root widget. This ID must correspond to '
-                  'the ID of one of the widgets in the `components` list.',
-            ),
-          },
-          required: [surfaceIdKey, 'root'],
-        ),
-      );
+      : super(
+          name: 'beginRendering',
+          description:
+              'Signals the client to begin rendering a surface with a '
+              'root component.',
+          parameters: S.object(
+            properties: {
+              surfaceIdKey: S.string(
+                description:
+                    'The unique identifier for the UI surface to render.',
+              ),
+              'root': S.string(
+                description:
+                    'The ID of the root widget. This ID must correspond to '
+                    'the ID of one of the widgets in the `components` list.',
+              ),
+            },
+            required: [surfaceIdKey, 'root'],
+          ),
+        );
 
   /// The callback to invoke when signaling to begin rendering.
   final void Function(A2uiMessage message) handleMessage;
