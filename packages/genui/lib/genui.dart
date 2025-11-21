@@ -32,3 +32,6 @@ export 'src/model/tools.dart';
 export 'src/model/ui_models.dart';
 export 'src/primitives/logging.dart';
 export 'src/primitives/simple_items.dart';
+
+export 'src/local_agent/local_agent.dart';
+export 'src/local_agent/model_adapter.dart';
