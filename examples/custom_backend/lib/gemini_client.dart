@@ -9,6 +9,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:genui/genui.dart';
+import 'package:genui/src/facade/direct_call_integration/model.dart' as dci;
 import 'package:http/http.dart' as http;
 
 import 'debug_utils.dart';
@@ -19,7 +20,7 @@ import 'debug_utils.dart';
 // https://ai.google.dev/gemini-api/docs/function-calling?example=meeting#rest_2
 
 abstract class GeminiClient {
-  static Future<ToolCall?> sendRequest({
+  static Future<dci.ToolCall?> sendRequest({
     required List<GenUiFunctionDeclaration> tools,
     required String request,
     required String? savedResponse,
@@ -49,7 +50,7 @@ abstract class GeminiClient {
     final Map<String, Object?> toolCallPart = extractToolCallPart(response);
     final Object? functionCall = toolCallPart['functionCall'];
     if (functionCall == null) return null;
-    return ToolCall.fromJson(functionCall as JsonMap);
+    return dci.ToolCall.fromJson(functionCall as JsonMap);
   }
 
   static Future<String> _getSavedRawResponse(String savedResponse) async =>

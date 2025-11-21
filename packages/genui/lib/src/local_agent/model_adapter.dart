@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 // Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,8 +40,7 @@ abstract interface class ModelAdapter<TTool, TContent, TResponse> {
   List<TContent> convertMessages(Iterable<ChatMessage> messages);
 
   /// Calls the AI model to generate content.
-  Future<TResponse> generateContent(
-      List<TContent> content, List<TTool> tools);
+  Future<TResponse> generateContent(List<TContent> content, List<TTool> tools);
 
   /// Processes the model's response to extract tool calls and text.
   ModelTurnResult processResponse(TResponse response);

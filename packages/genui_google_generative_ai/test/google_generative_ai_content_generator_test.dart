@@ -24,7 +24,7 @@ void main() {
 
       expect(generator, isNotNull);
       expect(generator.catalog, catalog);
-      expect(generator.modelName, 'models/gemini-2.5-flash');
+      expect(generator.modelName, 'models/gemini-1.5-flash');
       expect(generator.outputToolName, 'provideFinalOutput');
     });
 

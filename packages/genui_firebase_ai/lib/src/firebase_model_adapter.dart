@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 // Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +17,13 @@
 // limitations under the License.
 
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:genui/genui.dart';
-import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
+import 'package:genui/src/local_agent/model_adapter.dart';
+import 'package:genui/src/model/chat_message.dart';
+import 'package:genui/src/model/tools.dart';
+import 'package:genui/src/primitives/logging.dart';
 
 import 'gemini_content_converter.dart';
+import 'gemini_generative_model.dart';
 import 'gemini_schema_adapter.dart';
 
 /// A [ModelAdapter] for the Firebase AI API.
@@ -24,15 +31,16 @@ class FirebaseModelAdapter
     implements ModelAdapter<Tool, Content, GenerateContentResponse> {
   final GeminiContentConverter _converter = GeminiContentConverter();
   final GeminiSchemaAdapter _adapter = GeminiSchemaAdapter();
-  final GenerativeModel _model;
+  final GeminiGenerativeModelInterface _model;
 
   /// Creates a new [FirebaseModelAdapter].
-  FirebaseModelAdapter({required GenerativeModel model}) : _model = model;
+  FirebaseModelAdapter({required GeminiGenerativeModelInterface model})
+    : _model = model;
 
   @override
   List<Tool> adaptTools(List<AiTool> tools) {
     final functionDeclarations = <FunctionDeclaration>[];
-    for (final AiTool<JsonMap> tool in tools) {
+    for (final tool in tools) {
       Schema? adaptedParameters;
       if (tool.parameters != null) {
         final GeminiSchemaAdapterResult result = _adapter.adapt(
@@ -70,7 +78,9 @@ class FirebaseModelAdapter
 
   @override
   Future<GenerateContentResponse> generateContent(
-      List<Content> content, List<Tool> tools) {
+    List<Content> content,
+    List<Tool> tools,
+  ) {
     return _model.generateContent(content);
   }
 
@@ -84,10 +94,11 @@ class FirebaseModelAdapter
     }
 
     final Candidate candidate = response.candidates.first;
-    final List<FunctionCall> functionCalls =
-        candidate.content.parts.whereType<FunctionCall>().toList();
+    final List<FunctionCall> functionCalls = candidate.content.parts
+        .whereType<FunctionCall>()
+        .toList();
 
-    final toolCalls = functionCalls
+    final List<ToolCall> toolCalls = functionCalls
         .map((fc) => ToolCall(id: fc.name, name: fc.name, arguments: fc.args))
         .toList();
 
@@ -96,7 +107,7 @@ class FirebaseModelAdapter
 
   @override
   List<Content> adaptToolResults(List<ToolResult> toolResults) {
-    final functionResponses = toolResults
+    final List<FunctionResponse> functionResponses = toolResults
         .map((tr) => FunctionResponse(tr.toolCallId, tr.result))
         .toList();
     return [Content.functionResponses(functionResponses)];

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:genui/genui.dart';
+import 'package:genui/src/facade/direct_call_integration/model.dart' as dci;
 
 import 'debug_utils.dart';
 import 'gemini_client.dart';
@@ -40,7 +41,7 @@ class Backend {
     String request, {
     required String? savedResponse,
   }) async {
-    final ToolCall? toolCall = await GeminiClient.sendRequest(
+    final dci.ToolCall? toolCall = await GeminiClient.sendRequest(
       tools: schema.tools,
       request: '${schema.prompt}\n\nUser request:\n$request',
       savedResponse: savedResponse,

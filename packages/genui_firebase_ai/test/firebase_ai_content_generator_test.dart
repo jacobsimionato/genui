@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart' as genui;
+import 'package:genui/src/primitives/simple_items.dart';
 import 'package:genui_firebase_ai/src/firebase_ai_content_generator.dart';
 import 'package:genui_firebase_ai/src/gemini_generative_model.dart';
 import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
@@ -49,7 +50,7 @@ void main() {
       final generator = FirebaseAiContentGenerator(
         catalog: const genui.Catalog({}),
         additionalTools: [
-          genui.DynamicAiTool<Map<String, Object?>>(
+          genui.DynamicAiTool<JsonMap>(
             name: 'testTool',
             description: 'A test tool',
             parameters: dsb.Schema.object(),

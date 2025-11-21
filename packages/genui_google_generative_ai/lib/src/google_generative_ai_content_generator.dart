@@ -5,7 +5,15 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:genui/genui.dart';
+import 'package:genui/src/content_generator.dart';
+import 'package:genui/src/core/genui_configuration.dart';
+import 'package:genui/src/core/ui_tools.dart';
+import 'package:genui/src/local_agent/local_agent.dart';
+import 'package:genui/src/model/a2ui_message.dart';
+import 'package:genui/src/model/catalog.dart';
+import 'package:genui/src/model/chat_message.dart';
+import 'package:genui/src/model/tools.dart';
+import 'package:genui/src/primitives/logging.dart';
 import 'package:google_cloud_ai_generativelanguage_v1beta/generativelanguage.dart'
     as google_ai;
 
@@ -15,9 +23,10 @@ import 'google_model_adapter.dart';
 /// A factory for creating a [GoogleGenerativeServiceInterface].
 ///
 /// This is used to allow for custom service creation, for example, for testing.
-typedef GenerativeServiceFactory = GoogleGenerativeServiceInterface Function({
-  required GoogleGenerativeAiContentGenerator configuration,
-});
+typedef GenerativeServiceFactory =
+    GoogleGenerativeServiceInterface Function({
+      required GoogleGenerativeAiContentGenerator configuration,
+    });
 
 /// A [ContentGenerator] that uses the Google Cloud Generative Language API to
 /// generate content.
@@ -129,8 +138,10 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
       ];
 
       final toolRegistry = ToolRegistry(tools: availableTools);
-      final adapter =
-          GoogleModelAdapter(service: service, modelName: modelName);
+      final adapter = GoogleModelAdapter(
+        service: service,
+        modelName: modelName,
+      );
       final agent = LocalAgent(adapter: adapter, toolRegistry: toolRegistry);
 
       final response = await agent.execute(messages);

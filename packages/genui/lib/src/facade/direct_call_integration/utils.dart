@@ -2,12 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import '../../../genui.dart' show GenUiFunctionDeclaration, ParsedToolCall;
 import '../../model/a2ui_message.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog.dart';
 import '../../model/tools.dart';
 import '../../primitives/simple_items.dart';
-import 'model.dart';
+import 'model.dart' as dci;
+import 'model.dart' show GenUiFunctionDeclaration, ParsedToolCall;
 
 /// Prompt to be provided to the LLM about how to use the UI generation tools.
 String genUiTechPrompt(List<String> toolNames) {
@@ -28,7 +30,7 @@ Ensure one of the generated components has an id of 'root'.
 ''';
 }
 
-/// Converts a [Catalog] to a [GenUiFunctionDeclaration].
+/// Converts a [Catalog] to a [dci.GenUiFunctionDeclaration].
 GenUiFunctionDeclaration catalogToFunctionDeclaration(
   Catalog catalog,
   String toolName,
@@ -41,8 +43,8 @@ GenUiFunctionDeclaration catalogToFunctionDeclaration(
   );
 }
 
-/// Parses a [ToolCall] into a [ParsedToolCall].
-ParsedToolCall parseToolCall(ToolCall toolCall, String toolName) {
+/// Parses a [ToolCall] into a [dci.ParsedToolCall].
+ParsedToolCall parseToolCall(dci.ToolCall toolCall, String toolName) {
   assert(toolCall.name == toolName);
 
   final Map<String, Object?> messageJson = {'surfaceUpdate': toolCall.args};
@@ -62,7 +64,7 @@ ParsedToolCall parseToolCall(ToolCall toolCall, String toolName) {
 }
 
 /// Converts a catalog example to a [ToolCall].
-ToolCall catalogExampleToToolCall(
+dci.ToolCall catalogExampleToToolCall(
   JsonMap example,
   String toolName,
   String surfaceId,
@@ -70,7 +72,7 @@ ToolCall catalogExampleToToolCall(
   final messageJson = {'surfaceUpdate': example};
   final surfaceUpdateMessage = A2uiMessage.fromJson(messageJson);
 
-  return ToolCall(
+  return dci.ToolCall(
     name: toolName,
     args: {surfaceIdKey: surfaceId, 'surfaceUpdate': surfaceUpdateMessage},
   );

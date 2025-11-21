@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import 'tools.dart';
 import 'ui_models.dart';
 
 /// A sealed class representing a part of a message.
@@ -127,6 +129,19 @@ final class ThinkingPart implements MessagePart {
 sealed class ChatMessage {
   /// Creates a [ChatMessage].
   const ChatMessage();
+
+  /// Creates a [ChatMessage] from a list of [ToolResult]s.
+  factory ChatMessage.toolResults(List<ToolResult> toolResults) {
+    final List<ToolResultPart> results = toolResults
+        .map(
+          (tr) => ToolResultPart(
+            callId: tr.toolCallId,
+            result: jsonEncode(tr.result),
+          ),
+        )
+        .toList();
+    return ToolResponseMessage(results);
+  }
 }
 
 /// A message representing an internal message

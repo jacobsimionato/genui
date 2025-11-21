@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 // Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,22 +30,23 @@ class LocalAgent<TTool, TContent, TResponse> {
   LocalAgent({
     required ModelAdapter<TTool, TContent, TResponse> adapter,
     required ToolRegistry toolRegistry,
-  })  : _adapter = adapter,
-        _toolRegistry = toolRegistry;
+  }) : _adapter = adapter,
+       _toolRegistry = toolRegistry;
 
   /// Executes the agent with the given messages.
   Future<String?> execute(Iterable<ChatMessage> messages) async {
-    final history = messages.toList();
+    final List<ChatMessage> history = messages.toList();
     var stop = false;
     while (!stop) {
       final response = await _adapter.generateContent(
-          _adapter.convertMessages(history),
-          _adapter.adaptTools(_toolRegistry.tools));
-      final result = _adapter.processResponse(response);
+        _adapter.convertMessages(history),
+        _adapter.adaptTools(_toolRegistry.tools),
+      );
+      final ModelTurnResult result = _adapter.processResponse(response);
 
       if (result.toolCalls.isNotEmpty) {
-        final toolResults = await Future.wait(
-          result.toolCalls.map((toolCall) => _toolRegistry.execute(toolCall)),
+        final List<ToolResult> toolResults = await Future.wait(
+          result.toolCalls.map(_toolRegistry.execute),
         );
         history.add(ChatMessage.toolResults(toolResults));
       } else {

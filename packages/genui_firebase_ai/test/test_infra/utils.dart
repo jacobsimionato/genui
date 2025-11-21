@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
-
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:genui_firebase_ai/src/gemini_generative_model.dart';
 

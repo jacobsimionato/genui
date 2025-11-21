@@ -6,7 +6,15 @@ import 'dart:async';
 
 import 'package:firebase_ai/firebase_ai.dart' hide TextPart;
 import 'package:flutter/foundation.dart';
-import 'package:genui/genui.dart' hide Part;
+import 'package:genui/src/content_generator.dart';
+import 'package:genui/src/core/genui_configuration.dart';
+import 'package:genui/src/core/ui_tools.dart';
+import 'package:genui/src/local_agent/local_agent.dart';
+import 'package:genui/src/model/a2ui_message.dart';
+import 'package:genui/src/model/catalog.dart';
+import 'package:genui/src/model/chat_message.dart';
+import 'package:genui/src/model/tools.dart';
+import 'package:genui/src/primitives/logging.dart';
 
 import 'firebase_model_adapter.dart';
 import 'gemini_generative_model.dart';
@@ -14,12 +22,13 @@ import 'gemini_generative_model.dart';
 /// A factory for creating a [GeminiGenerativeModelInterface].
 ///
 /// This is used to allow for custom model creation, for example, for testing.
-typedef GenerativeModelFactory = GeminiGenerativeModelInterface Function({
-  required FirebaseAiContentGenerator configuration,
-  Content? systemInstruction,
-  List<Tool>? tools,
-  ToolConfig? toolConfig,
-});
+typedef GenerativeModelFactory =
+    GeminiGenerativeModelInterface Function({
+      required FirebaseAiContentGenerator configuration,
+      Content? systemInstruction,
+      List<Tool>? tools,
+      ToolConfig? toolConfig,
+    });
 
 /// A [ContentGenerator] that uses the Firebase AI API to generate content.
 ///
@@ -126,20 +135,22 @@ class FirebaseAiContentGenerator implements ContentGenerator {
 
       final toolRegistry = ToolRegistry(tools: availableTools);
 
-      final model = modelCreator(
+      final GeminiGenerativeModelInterface model = modelCreator(
         configuration: this,
         systemInstruction: systemInstruction == null
             ? null
             : Content.system(systemInstruction!),
         tools: const [], // The adapter will handle this.
-        toolConfig:
-            ToolConfig(functionCallingConfig: FunctionCallingConfig.auto()),
+        toolConfig: ToolConfig(
+          functionCallingConfig: FunctionCallingConfig.auto(),
+        ),
       );
 
-      final adapter = FirebaseModelAdapter(model: model.model);
-      final agent = LocalAgent(adapter: adapter, toolRegistry: toolRegistry);
+      final adapter = FirebaseModelAdapter(model: model);
+      final LocalAgent<Tool, Content, GenerateContentResponse> agent =
+          LocalAgent(adapter: adapter, toolRegistry: toolRegistry);
 
-      final response = await agent.execute(messages);
+      final String? response = await agent.execute(messages);
 
       if (response != null) {
         _textResponseController.add(response);

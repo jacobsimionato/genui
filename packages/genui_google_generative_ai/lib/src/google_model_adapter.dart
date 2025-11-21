@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 // Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +16,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:genui/genui.dart';
+import 'package:genui/src/local_agent/model_adapter.dart';
+import 'package:genui/src/model/chat_message.dart';
+import 'package:genui/src/model/tools.dart';
+import 'package:genui/src/primitives/logging.dart';
 import 'package:google_cloud_ai_generativelanguage_v1beta/generativelanguage.dart'
     as google_ai;
 import 'package:google_cloud_protobuf/protobuf.dart' as protobuf;
@@ -24,19 +31,22 @@ import 'google_schema_adapter.dart';
 /// A [ModelAdapter] for the Google Cloud Generative Language API.
 class GoogleModelAdapter
     implements
-        ModelAdapter<google_ai.Tool, google_ai.Content,
-            google_ai.GenerateContentResponse> {
+        ModelAdapter<
+          google_ai.Tool,
+          google_ai.Content,
+          google_ai.GenerateContentResponse
+        > {
   final GoogleContentConverter _converter = GoogleContentConverter();
   final GoogleSchemaAdapter _adapter = GoogleSchemaAdapter();
   final GoogleGenerativeServiceInterface _service;
   final String _modelName;
 
   /// Creates a new [GoogleModelAdapter].
-  GoogleModelAdapter(
-      {required GoogleGenerativeServiceInterface service,
-      required String modelName})
-      : _service = service,
-        _modelName = modelName;
+  GoogleModelAdapter({
+    required GoogleGenerativeServiceInterface service,
+    required String modelName,
+  }) : _service = service,
+       _modelName = modelName;
 
   @override
   List<google_ai.Tool> adaptTools(List<AiTool> tools) {
@@ -74,7 +84,9 @@ class GoogleModelAdapter
 
   @override
   Future<google_ai.GenerateContentResponse> generateContent(
-      List<google_ai.Content> content, List<google_ai.Tool> tools) {
+    List<google_ai.Content> content,
+    List<google_ai.Tool> tools,
+  ) {
     final request = google_ai.GenerateContentRequest(
       model: _modelName,
       contents: content,
@@ -89,8 +101,7 @@ class GoogleModelAdapter
   }
 
   @override
-  ModelTurnResult processResponse(
-      google_ai.GenerateContentResponse response) {
+  ModelTurnResult processResponse(google_ai.GenerateContentResponse response) {
     if (response.candidates == null || response.candidates!.isEmpty) {
       genUiLogger.warning(
         'Response has no candidates: ${response.promptFeedback}',
@@ -109,10 +120,13 @@ class GoogleModelAdapter
     }
 
     final toolCalls = functionCalls
-        .map((fc) => ToolCall(
+        .map(
+          (fc) => ToolCall(
             id: fc.name!,
             name: fc.name!,
-            arguments: fc.args?.toJson() as Map<String, Object?>? ?? {}))
+            arguments: fc.args?.toJson() as Map<String, Object?>? ?? {},
+          ),
+        )
         .toList();
 
     String? text;
@@ -130,12 +144,14 @@ class GoogleModelAdapter
   @override
   List<google_ai.Content> adaptToolResults(List<ToolResult> toolResults) {
     final functionResponseParts = toolResults
-        .map((tr) => google_ai.Part(
-              functionResponse: google_ai.FunctionResponse(
-                name: tr.toolCallId,
-                response: protobuf.Struct.fromJson(tr.result),
-              ),
-            ))
+        .map(
+          (tr) => google_ai.Part(
+            functionResponse: google_ai.FunctionResponse(
+              name: tr.toolCallId,
+              response: protobuf.Struct.fromJson(tr.result),
+            ),
+          ),
+        )
         .toList();
     return [google_ai.Content(role: 'tool', parts: functionResponseParts)];
   }

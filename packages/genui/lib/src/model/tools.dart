@@ -121,3 +121,51 @@ class DynamicAiTool<T extends JsonMap> extends AiTool<T> {
     return invokeFunction(args);
   }
 }
+
+/// A tool call.
+class ToolCall {
+  /// The ID of the tool call.
+  final String id;
+
+  /// The name of the tool to call.
+  final String name;
+
+  /// The arguments to the tool.
+  final Map<String, Object?> arguments;
+
+  /// Creates a new [ToolCall].
+  ToolCall({required this.id, required this.name, required this.arguments});
+}
+
+/// The result of a tool call.
+class ToolResult {
+  /// The ID of the tool call.
+  final String toolCallId;
+
+  /// The result of the tool call.
+  final Map<String, Object?> result;
+
+  /// Creates a new [ToolResult].
+  ToolResult({required this.toolCallId, required this.result});
+}
+
+/// A registry of tools.
+class ToolRegistry {
+  /// The tools in the registry.
+  final List<AiTool> tools;
+  final Map<String, AiTool> _toolMap;
+
+  /// Creates a new [ToolRegistry].
+  ToolRegistry({required this.tools})
+    : _toolMap = {for (var tool in tools) tool.name: tool};
+
+  /// Executes a tool call.
+  Future<ToolResult> execute(ToolCall toolCall) async {
+    final AiTool<JsonMap>? tool = _toolMap[toolCall.name];
+    if (tool == null) {
+      throw Exception('Tool not found: ${toolCall.name}');
+    }
+    final JsonMap result = await tool.invoke(toolCall.arguments);
+    return ToolResult(toolCallId: toolCall.id, result: result);
+  }
+}
