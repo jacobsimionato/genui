@@ -81,7 +81,7 @@ void main() {
           ),
         ];
 
-        final expectation = expectLater(
+        final Future<void> expectation = expectLater(
           manager.surfaceUpdates,
           emitsInOrder([isA<SurfaceAdded>(), isA<SurfaceUpdated>()]),
         );
