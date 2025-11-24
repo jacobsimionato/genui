@@ -72,10 +72,6 @@ void main() {
             },
           ),
         ];
-        manager.handleMessage(
-          SurfaceUpdate(surfaceId: surfaceId, components: oldComponents),
-        );
-
         final newComponents = [
           const Component(
             id: 'root',
@@ -85,17 +81,22 @@ void main() {
           ),
         ];
 
-        expectLater(
+        final expectation = expectLater(
           manager.surfaceUpdates,
           emitsInOrder([isA<SurfaceAdded>(), isA<SurfaceUpdated>()]),
         );
 
+        manager.handleMessage(
+          SurfaceUpdate(surfaceId: surfaceId, components: oldComponents),
+        );
         manager.handleMessage(
           const BeginRendering(surfaceId: surfaceId, root: 'root'),
         );
         manager.handleMessage(
           SurfaceUpdate(surfaceId: surfaceId, components: newComponents),
         );
+
+        await expectation;
       },
     );
 
