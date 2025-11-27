@@ -12,10 +12,10 @@ void main() {
   ) async {
     ChatMessage? message;
     final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog(
-        [CoreCatalogItems.button, CoreCatalogItems.text],
-        catalogId: 'test_catalog',
-      ),
+      catalog: Catalog([
+        CoreCatalogItems.button,
+        CoreCatalogItems.text,
+      ], catalogId: 'test_catalog'),
       configuration: const GenUiConfiguration(),
     );
     manager.onSubmit.listen((event) => message = event);

@@ -23,18 +23,15 @@ void main() {
 
       final tool = SurfaceUpdateTool(
         handleMessage: fakeHandleMessage,
-        catalog: Catalog(
-          [
-            CatalogItem(
-              name: 'Text',
-              widgetBuilder: (_) {
-                return const Text('');
-              },
-              dataSchema: Schema.object(properties: {}),
-            ),
-          ],
-          catalogId: 'test_catalog',
-        ),
+        catalog: Catalog([
+          CatalogItem(
+            name: 'Text',
+            widgetBuilder: (_) {
+              return const Text('');
+            },
+            dataSchema: Schema.object(properties: {}),
+          ),
+        ], catalogId: 'test_catalog'),
         configuration: const GenUiConfiguration(),
       );
 

@@ -164,7 +164,7 @@ provider.
 
        // Create a GenUiManager with a widget catalog.
        // The CoreCatalogItems contain basic widgets for text, markdown, and images.
-       _genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
+       _genUiManager = GenUiManager.withSingleCatalog(catalog: CoreCatalogItems.asCatalog());
 
        // Create a ContentGenerator to communicate with the LLM.
        // Provide system instructions and the tools from the GenUiManager.
@@ -377,7 +377,7 @@ final riddleCard = CatalogItem(
 Include your catalog items when instantiating `GenUiManager`.
 
 ```dart
-_genUiManager = GenUiManager(
+_genUiManager = GenUiManager.withSingleCatalog(
   catalog: CoreCatalogItems.asCatalog().copyWith([riddleCard]),
 );
 ```

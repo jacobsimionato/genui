@@ -7,32 +7,33 @@ import 'package:genui/genui.dart';
 
 void main() {
   group('UiDefinition', () {
-      test('toJson() serializes correctly', () {
-        final definition = UiDefinition(
-          surfaceId: 'testSurface',
-          rootComponentId: 'root',
-          catalogId: 'test_catalog',
-          components: {
-            'root': const Component(
-              id: 'root',
-              componentProperties: {
-                'Text': {'text': 'Hello'},
-              },
-            ),
-          },
-        );
-    
-        final JsonMap json = definition.toJson();
-    
-        expect(json[surfaceIdKey], 'testSurface');
-        expect(json['rootComponentId'], 'root');
-        expect(json['components'], {
-          'root': {
-            'id': 'root',
-            'component': {
+    test('toJson() serializes correctly', () {
+      final definition = UiDefinition(
+        surfaceId: 'testSurface',
+        rootComponentId: 'root',
+        catalogId: 'test_catalog',
+        components: {
+          'root': const Component(
+            id: 'root',
+            componentProperties: {
               'Text': {'text': 'Hello'},
             },
+          ),
+        },
+      );
+
+      final JsonMap json = definition.toJson();
+
+      expect(json[surfaceIdKey], 'testSurface');
+      expect(json['rootComponentId'], 'root');
+      expect(json['components'], {
+        'root': {
+          'id': 'root',
+          'component': {
+            'Text': {'text': 'Hello'},
           },
-        });
-      });  });
+        },
+      });
+    });
+  });
 }

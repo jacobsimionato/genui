@@ -11,10 +11,9 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog(
-        [CoreCatalogItems.multipleChoice],
-        catalogId: 'test_catalog',
-      ),
+      catalog: Catalog([
+        CoreCatalogItems.multipleChoice,
+      ], catalogId: 'test_catalog'),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';

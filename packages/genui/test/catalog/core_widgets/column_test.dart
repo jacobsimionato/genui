@@ -9,10 +9,10 @@ import 'package:genui/genui.dart';
 void main() {
   testWidgets('Column widget renders children', (WidgetTester tester) async {
     final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog(
-        [CoreCatalogItems.column, CoreCatalogItems.text],
-        catalogId: 'test_catalog',
-      ),
+      catalog: Catalog([
+        CoreCatalogItems.column,
+        CoreCatalogItems.text,
+      ], catalogId: 'test_catalog'),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -71,10 +71,10 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog(
-        [CoreCatalogItems.column, CoreCatalogItems.text],
-        catalogId: 'test_catalog',
-      ),
+      catalog: Catalog([
+        CoreCatalogItems.column,
+        CoreCatalogItems.text,
+      ], catalogId: 'test_catalog'),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -139,8 +139,9 @@ void main() {
     expect(find.text('Second'), findsOneWidget);
     expect(find.text('Third'), findsOneWidget);
 
-    final List<Flexible> flexibleWidgets =
-        tester.widgetList<Flexible>(find.byType(Flexible)).toList();
+    final List<Flexible> flexibleWidgets = tester
+        .widgetList<Flexible>(find.byType(Flexible))
+        .toList();
     expect(flexibleWidgets.length, 2);
 
     // Check flex values

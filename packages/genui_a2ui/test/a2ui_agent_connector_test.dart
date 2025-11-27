@@ -46,8 +46,7 @@ void main() {
       const capabilities = genui.A2UiClientCapabilities(
         supportedCatalogIds: ['cat1', 'cat2'],
       );
-      fakeClient.sendMessageStreamHandler =
-          (_) => const Stream.empty();
+      fakeClient.sendMessageStreamHandler = (_) => const Stream.empty();
 
       await connector.connectAndSend(
         genui.UserMessage.text('Hi'),
@@ -55,7 +54,8 @@ void main() {
       );
 
       expect(fakeClient.sendMessageStreamCalled, 1);
-      final sentMessage = fakeClient.lastSendMessageParams!.message;
+      final a2a.A2AMessage sentMessage =
+          fakeClient.lastSendMessageParams!.message;
       expect(sentMessage.metadata, isNotNull);
       expect(sentMessage.metadata!['a2uiClientCapabilities'], {
         'supportedCatalogIds': ['cat1', 'cat2'],

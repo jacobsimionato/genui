@@ -18,7 +18,7 @@ void main() {
           actions: ActionsConfig(
             allowCreate: true,
             allowUpdate: true,
-allowDelete: true,
+            allowDelete: true,
           ),
         ),
       );

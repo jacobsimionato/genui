@@ -89,13 +89,13 @@ class DeleteSurfaceTool extends AiTool<JsonMap> {
 class BeginRenderingTool extends AiTool<JsonMap> {
   /// Creates a [BeginRenderingTool].
   BeginRenderingTool({required this.handleMessage})
-      : super(
-          name: 'beginRendering',
-          description:
-              'Signals the client to begin rendering a surface with a '
-              'root component.',
-          parameters: A2uiSchemas.beginRenderingSchema(),
-        );
+    : super(
+        name: 'beginRendering',
+        description:
+            'Signals the client to begin rendering a surface with a '
+            'root component.',
+        parameters: A2uiSchemas.beginRenderingSchema(),
+      );
 
   /// The callback to invoke when signaling to begin rendering.
   final void Function(A2uiMessage message) handleMessage;
@@ -105,11 +105,9 @@ class BeginRenderingTool extends AiTool<JsonMap> {
     final surfaceId = args[surfaceIdKey] as String;
     final root = args['root'] as String;
     final catalogId = args['catalogId'] as String?;
-    handleMessage(BeginRendering(
-      surfaceId: surfaceId,
-      root: root,
-      catalogId: catalogId,
-    ));
+    handleMessage(
+      BeginRendering(surfaceId: surfaceId, root: root, catalogId: catalogId),
+    );
     return {
       'status': 'Surface $surfaceId rendered and waiting for user input.',
     };

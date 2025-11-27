@@ -9,10 +9,10 @@ import 'package:logging/logging.dart';
 
 void main() {
   late GenUiManager manager;
-  final testCatalog = Catalog(
-    [CoreCatalogItems.button, CoreCatalogItems.text],
-    catalogId: 'test_catalog',
-  );
+  final testCatalog = Catalog([
+    CoreCatalogItems.button,
+    CoreCatalogItems.text,
+  ], catalogId: 'test_catalog');
 
   setUp(() {
     manager = GenUiManager.withSingleCatalog(
@@ -106,52 +106,56 @@ void main() {
     await tester.tap(find.byType(ElevatedButton));
   });
 
-  testWidgets('SurfaceWidget renders container and logs error on catalog miss',
-      (WidgetTester tester) async {
-    const surfaceId = 'testSurface';
-    final components = [
-      const Component(
-        id: 'root',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Hello'},
+  testWidgets(
+    'SurfaceWidget renders container and logs error on catalog miss',
+    (WidgetTester tester) async {
+      const surfaceId = 'testSurface';
+      final components = [
+        const Component(
+          id: 'root',
+          componentProperties: {
+            'Text': {
+              'text': {'literalString': 'Hello'},
+            },
           },
-        },
-      ),
-    ];
-    manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
-    );
-    // Request a catalogId that doesn't exist in the manager.
-    manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'root',
-        catalogId: 'non_existent_catalog',
-      ),
-    );
+        ),
+      ];
+      manager.handleMessage(
+        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      );
+      // Request a catalogId that doesn't exist in the manager.
+      manager.handleMessage(
+        const BeginRendering(
+          surfaceId: surfaceId,
+          root: 'root',
+          catalogId: 'non_existent_catalog',
+        ),
+      );
 
-    final logs = <LogRecord>[];
-    genUiLogger.onRecord.listen(logs.add);
+      final logs = <LogRecord>[];
+      genUiLogger.onRecord.listen(logs.add);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: GenUiSurface(host: manager, surfaceId: surfaceId),
-      ),
-    );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GenUiSurface(host: manager, surfaceId: surfaceId),
+        ),
+      );
 
-    // Should build an empty container instead of the widget tree.
-    expect(find.byType(Container), findsOneWidget);
-    expect(find.byType(Text), findsNothing);
+      // Should build an empty container instead of the widget tree.
+      expect(find.byType(Container), findsOneWidget);
+      expect(find.byType(Text), findsNothing);
 
-    // Should log a severe error.
-    expect(
-      logs.any(
-        (r) =>
-            r.level == Level.SEVERE &&
-            r.message.contains('Catalog with id "non_existent_catalog" not found'),
-      ),
-      isTrue,
-    );
-  });
+      // Should log a severe error.
+      expect(
+        logs.any(
+          (r) =>
+              r.level == Level.SEVERE &&
+              r.message.contains(
+                'Catalog with id "non_existent_catalog" not found',
+              ),
+        ),
+        isTrue,
+      );
+    },
+  );
 }

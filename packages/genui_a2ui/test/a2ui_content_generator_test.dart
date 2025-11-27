@@ -44,8 +44,9 @@ void main() {
       expect(contentGenerator.isProcessing.value, isFalse);
       final Future<void> future = contentGenerator.sendRequest(
         userMessage,
-        clientCapabilities:
-            const A2UiClientCapabilities(supportedCatalogIds: ['test_catalog']),
+        clientCapabilities: const A2UiClientCapabilities(
+          supportedCatalogIds: ['test_catalog'],
+        ),
       );
       expect(contentGenerator.isProcessing.value, isTrue);
 
@@ -57,8 +58,9 @@ void main() {
 
     test('sendRequest passes clientCapabilities to connector', () async {
       final userMessage = UserMessage([const TextPart('Test')]);
-      const capabilities =
-          A2UiClientCapabilities(supportedCatalogIds: ['test_catalog']);
+      const capabilities = A2UiClientCapabilities(
+        supportedCatalogIds: ['test_catalog'],
+      );
 
       await contentGenerator.sendRequest(
         userMessage,
@@ -75,8 +77,9 @@ void main() {
 
       await contentGenerator.sendRequest(
         userMessage,
-        clientCapabilities:
-            const A2UiClientCapabilities(supportedCatalogIds: ['test_catalog']),
+        clientCapabilities: const A2UiClientCapabilities(
+          supportedCatalogIds: ['test_catalog'],
+        ),
       );
 
       expect(await completer.future, 'Fake AI Response');

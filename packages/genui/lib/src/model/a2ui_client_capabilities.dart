@@ -31,9 +31,10 @@ class A2UiClientCapabilities {
 
   /// Serializes this object to a JSON-compatible map.
   JsonMap toJson() {
-    return {
-      'supportedCatalogIds': supportedCatalogIds,
-      if (inlineCatalogs != null) 'inlineCatalogs': inlineCatalogs,
-    };
+    final JsonMap json = {'supportedCatalogIds': supportedCatalogIds};
+    if (inlineCatalogs != null) {
+      json['inlineCatalogs'] = inlineCatalogs;
+    }
+    return json;
   }
 }

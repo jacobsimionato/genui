@@ -64,8 +64,9 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
         final String catalogId =
             definition.catalogId ?? CoreCatalogItems.standardCatalogId;
-        final Catalog? catalog = widget.host.catalogs
-            .firstWhereOrNull((c) => c.catalogId == catalogId);
+        final Catalog? catalog = widget.host.catalogs.firstWhereOrNull(
+          (c) => c.catalogId == catalogId,
+        );
 
         if (catalog == null) {
           genUiLogger.severe(
@@ -110,11 +111,11 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
         data: widgetData,
         buildChild: (String childId, [DataContext? childDataContext]) =>
             _buildWidget(
-          definition,
-          catalog,
-          childId,
-          childDataContext ?? dataContext,
-        ),
+              definition,
+              catalog,
+              childId,
+              childDataContext ?? dataContext,
+            ),
         dispatchEvent: _dispatchEvent,
         buildContext: context,
         dataContext: dataContext,
@@ -127,14 +128,16 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
   void _dispatchEvent(UiEvent event) {
     if (event is UserActionEvent && event.name == 'showModal') {
-      final UiDefinition? definition =
-          widget.host.getSurfaceNotifier(widget.surfaceId).value;
+      final UiDefinition? definition = widget.host
+          .getSurfaceNotifier(widget.surfaceId)
+          .value;
       if (definition == null) return;
 
       final String catalogId =
           definition.catalogId ?? CoreCatalogItems.standardCatalogId;
-      final Catalog? catalog = widget.host.catalogs
-          .firstWhereOrNull((c) => c.catalogId == catalogId);
+      final Catalog? catalog = widget.host.catalogs.firstWhereOrNull(
+        (c) => c.catalogId == catalogId,
+      );
 
       if (catalog == null) {
         genUiLogger.severe(
