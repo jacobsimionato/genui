@@ -23,15 +23,18 @@ void main() {
 
       final tool = SurfaceUpdateTool(
         handleMessage: fakeHandleMessage,
-        catalog: Catalog([
-          CatalogItem(
-            name: 'Text',
-            widgetBuilder: (_) {
-              return const Text('');
-            },
-            dataSchema: Schema.object(properties: {}),
-          ),
-        ]),
+        catalog: Catalog(
+          [
+            CatalogItem(
+              name: 'Text',
+              widgetBuilder: (_) {
+                return const Text('');
+              },
+              dataSchema: Schema.object(properties: {}),
+            ),
+          ],
+          catalogId: 'test_catalog',
+        ),
         configuration: const GenUiConfiguration(),
       );
 
@@ -95,6 +98,7 @@ void main() {
       final Map<String, String> args = {
         surfaceIdKey: 'testSurface',
         'root': 'rootWidget',
+        'catalogId': 'test_catalog',
       };
 
       await tool.invoke(args);
@@ -104,6 +108,7 @@ void main() {
       final beginRendering = messages[0] as BeginRendering;
       expect(beginRendering.surfaceId, 'testSurface');
       expect(beginRendering.root, 'rootWidget');
+      expect(beginRendering.catalogId, 'test_catalog');
     });
   });
 }

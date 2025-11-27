@@ -10,8 +10,8 @@ void main() {
   testWidgets('Icon widget renders with literal string', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.icon]),
+    final manager = GenUiManager.withSingleCatalog(
+      catalog: Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -29,7 +29,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'icon'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'icon',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(
@@ -46,8 +50,8 @@ void main() {
   testWidgets('Icon widget renders with data binding', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.icon]),
+    final manager = GenUiManager.withSingleCatalog(
+      catalog: Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -72,7 +76,11 @@ void main() {
       ),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'icon'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'icon',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(

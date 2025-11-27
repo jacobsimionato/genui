@@ -10,8 +10,11 @@ void main() {
   testWidgets('Tabs widget renders and handles taps', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.tabs, CoreCatalogItems.text]),
+    final manager = GenUiManager.withSingleCatalog(
+      catalog: Catalog(
+        [CoreCatalogItems.tabs, CoreCatalogItems.text],
+        catalogId: 'test_catalog',
+      ),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -54,7 +57,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'tabs'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'tabs',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(

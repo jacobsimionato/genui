@@ -20,7 +20,7 @@ void main() {
     ) async {
       message = null;
       manager?.dispose();
-      manager = GenUiManager(
+      manager = GenUiManager.withSingleCatalog(
         catalog: testCatalog,
         configuration: const GenUiConfiguration(),
       );
@@ -30,7 +30,11 @@ void main() {
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
       manager!.handleMessage(
-        BeginRendering(surfaceId: surfaceId, root: rootId),
+        BeginRendering(
+          surfaceId: surfaceId,
+          root: rootId,
+          catalogId: testCatalog.catalogId,
+        ),
       );
       await tester.pumpWidget(
         MaterialApp(

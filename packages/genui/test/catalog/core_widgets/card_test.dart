@@ -8,8 +8,11 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Card widget renders child', (WidgetTester tester) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.card, CoreCatalogItems.text]),
+    final manager = GenUiManager.withSingleCatalog(
+      catalog: Catalog(
+        [CoreCatalogItems.card, CoreCatalogItems.text],
+        catalogId: 'test_catalog',
+      ),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -33,7 +36,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'card'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'card',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(

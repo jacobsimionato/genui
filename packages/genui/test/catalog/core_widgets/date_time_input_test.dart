@@ -10,8 +10,11 @@ void main() {
   testWidgets('DateTimeInput widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.dateTimeInput]),
+    final manager = GenUiManager.withSingleCatalog(
+      catalog: Catalog(
+        [CoreCatalogItems.dateTimeInput],
+        catalogId: 'test_catalog',
+      ),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -29,7 +32,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'datetime'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'datetime',
+        catalogId: 'test_catalog',
+      ),
     );
     manager
         .dataModelForSurface(surfaceId)

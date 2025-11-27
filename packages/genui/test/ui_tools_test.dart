@@ -12,13 +12,13 @@ void main() {
 
     setUp(() {
       catalog = CoreCatalogItems.asCatalog();
-      genUiManager = GenUiManager(
+      genUiManager = GenUiManager.withSingleCatalog(
         catalog: catalog,
         configuration: const GenUiConfiguration(
           actions: ActionsConfig(
             allowCreate: true,
             allowUpdate: true,
-            allowDelete: true,
+allowDelete: true,
           ),
         ),
       );
@@ -76,6 +76,7 @@ void main() {
       final Map<String, String> args = {
         surfaceIdKey: 'testSurface',
         'root': 'root',
+        'catalogId': 'test_catalog',
       };
 
       // First, add a component to the surface so that the root can be set.
@@ -105,6 +106,11 @@ void main() {
                 (e) => e.definition.rootComponentId,
                 'rootComponentId',
                 'root',
+              )
+              .having(
+                (e) => e.definition.catalogId,
+                'catalogId',
+                'test_catalog',
               ),
         ),
       );

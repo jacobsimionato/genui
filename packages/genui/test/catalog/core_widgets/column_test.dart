@@ -8,8 +8,11 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Column widget renders children', (WidgetTester tester) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.column, CoreCatalogItems.text]),
+    final manager = GenUiManager.withSingleCatalog(
+      catalog: Catalog(
+        [CoreCatalogItems.column, CoreCatalogItems.text],
+        catalogId: 'test_catalog',
+      ),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -45,7 +48,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'column'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'column',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(
@@ -63,8 +70,11 @@ void main() {
   testWidgets('Column widget applies weight property to children', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.column, CoreCatalogItems.text]),
+    final manager = GenUiManager.withSingleCatalog(
+      catalog: Catalog(
+        [CoreCatalogItems.column, CoreCatalogItems.text],
+        catalogId: 'test_catalog',
+      ),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -110,7 +120,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'column'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'column',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(
@@ -125,9 +139,8 @@ void main() {
     expect(find.text('Second'), findsOneWidget);
     expect(find.text('Third'), findsOneWidget);
 
-    final List<Flexible> flexibleWidgets = tester
-        .widgetList<Flexible>(find.byType(Flexible))
-        .toList();
+    final List<Flexible> flexibleWidgets =
+        tester.widgetList<Flexible>(find.byType(Flexible)).toList();
     expect(flexibleWidgets.length, 2);
 
     // Check flex values
