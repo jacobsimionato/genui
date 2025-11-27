@@ -25,8 +25,8 @@ class A2UiClientCapabilities {
   /// An array of full Catalog Definition Documents.
   ///
   /// This allows a client to provide custom, on-the-fly catalogs. This should
-  /// only be provided if the server has advertised `acceptsInlineCatalogs: true`.
-  /// This is not yet implemented.
+  /// only be provided if the server has advertised
+  /// `acceptsInlineCatalogs: true`. This is not yet implemented.
   final List<JsonMap>? inlineCatalogs;
 
   /// Serializes this object to a JSON-compatible map.
