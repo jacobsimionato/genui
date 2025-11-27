@@ -71,12 +71,12 @@ void main() {
     test('BeginRenderingTool sends BeginRendering message', () async {
       final tool = BeginRenderingTool(
         handleMessage: genUiManager.handleMessage,
+        catalogId: 'test_catalog',
       );
 
       final Map<String, String> args = {
         surfaceIdKey: 'testSurface',
         'root': 'root',
-        'catalogId': 'test_catalog',
       };
 
       // First, add a component to the surface so that the root can be set.

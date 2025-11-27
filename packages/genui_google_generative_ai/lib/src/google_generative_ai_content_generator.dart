@@ -352,7 +352,10 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
             catalog: catalog,
             configuration: configuration,
           ),
-          BeginRenderingTool(handleMessage: _a2uiMessageController.add),
+          BeginRenderingTool(
+            handleMessage: _a2uiMessageController.add,
+            catalogId: catalog.catalogId,
+          ),
         ],
         if (configuration.actions.allowDelete)
           DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),

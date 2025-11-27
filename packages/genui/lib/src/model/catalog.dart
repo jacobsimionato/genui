@@ -37,24 +37,24 @@ class Catalog {
   ///
   /// If an item with the same name already exists in the catalog, it will be
   /// replaced with the new item.
-  Catalog copyWith(List<CatalogItem> newItems) {
+  Catalog copyWith(List<CatalogItem> newItems, {String? catalogId}) {
     final Map<String, CatalogItem> itemsByName = {
       for (final item in items) item.name: item,
     };
     itemsByName.addAll({for (final item in newItems) item.name: item});
-    return Catalog(itemsByName.values, catalogId: catalogId);
+    return Catalog(itemsByName.values, catalogId: catalogId ?? this.catalogId);
   }
 
   /// Returns a new [Catalog] instance containing the items from this catalog
   /// with the specified items removed.
-  Catalog copyWithout(Iterable<CatalogItem> itemNames) {
+  Catalog copyWithout(Iterable<CatalogItem> itemNames, {String? catalogId}) {
     final Set<String> namesToRemove = itemNames
         .map<String>((item) => item.name)
         .toSet();
     final List<CatalogItem> updatedItems = items
         .where((item) => !namesToRemove.contains(item.name))
         .toList();
-    return Catalog(updatedItems, catalogId: catalogId);
+    return Catalog(updatedItems, catalogId: catalogId ?? this.catalogId);
   }
 
   /// Builds a Flutter widget from a JSON-like data structure.

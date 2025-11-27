@@ -90,12 +90,14 @@ void main() {
         messages.add(message);
       }
 
-      final tool = BeginRenderingTool(handleMessage: fakeHandleMessage);
+      final tool = BeginRenderingTool(
+        handleMessage: fakeHandleMessage,
+        catalogId: 'test_catalog',
+      );
 
       final Map<String, String> args = {
         surfaceIdKey: 'testSurface',
         'root': 'rootWidget',
-        'catalogId': 'test_catalog',
       };
 
       await tool.invoke(args);
