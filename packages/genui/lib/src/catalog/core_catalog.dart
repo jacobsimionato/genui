@@ -108,32 +108,30 @@ class CoreCatalogItems {
   /// This typically includes controls like play/pause, seek, and volume.
   static final CatalogItem video = video_item.video;
 
-    /// The official ID for the A2UI v0.8 standard catalog.
-    static const String standardCatalogId = 'a2ui.org:standard_catalog_0_8_0';
-  
-    /// Creates a catalog containing all core catalog items.
-    static Catalog asCatalog() {
-      return Catalog(
-        [
-          audioPlayer,
-          button,
-          card,
-          checkBox,
-          column,
-          dateTimeInput,
-          divider,
-          icon,
-          image,
-          list,
-          modal,
-          multipleChoice,
-          row,
-          slider,
-          tabs,
-          text,
-          textField,
-          video,
-        ],
-        catalogId: standardCatalogId,
-      );
-    }}
+  /// The official ID for the A2UI v0.8 standard catalog.
+  static const String standardCatalogId = 'a2ui.org:standard_catalog_0_8_0';
+
+  /// Creates a catalog containing all core catalog items.
+  static Catalog asCatalog() {
+    return Catalog([
+      audioPlayer,
+      button,
+      card,
+      checkBox,
+      column,
+      dateTimeInput,
+      divider,
+      icon,
+      image,
+      list,
+      modal,
+      multipleChoice,
+      row,
+      slider,
+      tabs,
+      text,
+      textField,
+      video,
+    ], catalogId: standardCatalogId);
+  }
+}
