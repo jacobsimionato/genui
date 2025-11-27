@@ -163,7 +163,6 @@ class GenUiManager implements GenUiHost {
           surfaceId,
         );
 
-        // Caching logic remains the same
         UiDefinition uiDefinition =
             notifier.value ?? UiDefinition(surfaceId: surfaceId);
         final Map<String, Component> newComponents = Map.of(
