@@ -198,7 +198,6 @@ class GenUiManager implements GenUiHost {
         );
         notifier.value = newUiDefinition;
 
-        // ALWAYS fire SurfaceAdded, as this is the signal to start rendering.
         genUiLogger.info('Creating and rendering surface $surfaceId');
         _surfaceUpdates.add(SurfaceAdded(surfaceId, newUiDefinition));
       case DataModelUpdate():
