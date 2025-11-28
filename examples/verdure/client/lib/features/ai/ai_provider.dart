@@ -67,9 +67,9 @@ class AiClientState {
 class Ai extends _$Ai {
   @override
   Future<AiClientState> build() async {
-    final genUiManager = GenUiManager.withSingleCatalog(
-      catalog: CoreCatalogItems.asCatalog(),
-    );
+    final genUiManager = GenUiManager(catalogs: [
+      CoreCatalogItems.asCatalog(),
+    ]);
     final A2uiAgentConnector connector = await ref.watch(
       a2uiAgentConnectorProvider.future,
     );

@@ -10,8 +10,8 @@ void main() {
   testWidgets('Icon widget renders with literal string', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
+    final manager = GenUiManager(
+      catalogs: [Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog')],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -50,8 +50,8 @@ void main() {
   testWidgets('Icon widget renders with data binding', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
+    final manager = GenUiManager(
+      catalogs: [Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog')],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';

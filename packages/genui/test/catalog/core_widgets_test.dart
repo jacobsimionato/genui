@@ -20,8 +20,8 @@ void main() {
     ) async {
       message = null;
       manager?.dispose();
-      manager = GenUiManager.withSingleCatalog(
-        catalog: testCatalog,
+      manager = GenUiManager(
+        catalogs: [testCatalog],
         configuration: const GenUiConfiguration(),
       );
       manager!.onSubmit.listen((event) => message = event);

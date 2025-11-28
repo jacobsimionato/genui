@@ -10,12 +10,14 @@ void main() {
   testWidgets('Modal widget renders and handles taps', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog([
-        CoreCatalogItems.modal,
-        CoreCatalogItems.button,
-        CoreCatalogItems.text,
-      ], catalogId: 'test_catalog'),
+    final manager = GenUiManager(
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.modal,
+          CoreCatalogItems.button,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog')
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';

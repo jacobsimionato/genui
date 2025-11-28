@@ -10,10 +10,13 @@ void main() {
   testWidgets('DateTimeInput widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog([
-        CoreCatalogItems.dateTimeInput,
-      ], catalogId: 'test_catalog'),
+    final manager = GenUiManager(
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.dateTimeInput,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog')
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';

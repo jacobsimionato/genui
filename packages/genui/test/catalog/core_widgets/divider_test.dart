@@ -8,8 +8,8 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Divider widget renders', (WidgetTester tester) async {
-    final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog([CoreCatalogItems.divider], catalogId: 'test_catalog'),
+    final manager = GenUiManager(
+      catalogs: [Catalog([CoreCatalogItems.divider], catalogId: 'test_catalog')],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';

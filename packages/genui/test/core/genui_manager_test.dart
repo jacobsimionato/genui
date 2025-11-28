@@ -13,8 +13,8 @@ void main() {
     late GenUiManager manager;
 
     setUp(() {
-      manager = GenUiManager.withSingleCatalog(
-        catalog: CoreCatalogItems.asCatalog(),
+      manager = GenUiManager(
+        catalogs: [CoreCatalogItems.asCatalog()],
         configuration: const GenUiConfiguration(
           actions: ActionsConfig(
             allowCreate: true,

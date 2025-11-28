@@ -91,15 +91,6 @@ class GenUiManager implements GenUiHost {
     this.configuration = const GenUiConfiguration(),
   });
 
-  /// Creates a new [GenUiManager] with a single widget catalog.
-  ///
-  /// This is a convenience constructor for applications that only need to
-  /// support a single catalog.
-  GenUiManager.withSingleCatalog({
-    required Catalog catalog,
-    this.configuration = const GenUiConfiguration(),
-  }) : catalogs = [catalog];
-
   final GenUiConfiguration configuration;
 
   @override

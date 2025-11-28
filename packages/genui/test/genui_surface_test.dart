@@ -15,8 +15,8 @@ void main() {
   ], catalogId: 'test_catalog');
 
   setUp(() {
-    manager = GenUiManager.withSingleCatalog(
-      catalog: testCatalog,
+    manager = GenUiManager(
+      catalogs: [testCatalog],
       configuration: const GenUiConfiguration(),
     );
   });

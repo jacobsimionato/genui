@@ -77,9 +77,9 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
   final _controller = TextEditingController(text: requestText);
 
   final _protocol = Backend(uiSchema);
-  late final GenUiManager _genUi = GenUiManager.withSingleCatalog(
-    catalog: _catalog,
-  );
+  late final GenUiManager _genUi = GenUiManager(catalogs: [
+    _catalog,
+  ]);
   String? _selectedResponse;
   bool _isLoading = false;
   String? _errorMessage;

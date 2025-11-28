@@ -12,8 +12,8 @@ void main() {
 
     setUp(() {
       catalog = CoreCatalogItems.asCatalog();
-      genUiManager = GenUiManager.withSingleCatalog(
-        catalog: catalog,
+      genUiManager = GenUiManager(
+        catalogs: [catalog],
         configuration: const GenUiConfiguration(
           actions: ActionsConfig(
             allowCreate: true,

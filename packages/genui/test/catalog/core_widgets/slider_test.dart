@@ -10,8 +10,8 @@ void main() {
   testWidgets('Slider widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog'),
+    final manager = GenUiManager(
+      catalogs: [Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog')],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';

@@ -8,11 +8,13 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Card widget renders child', (WidgetTester tester) async {
-    final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog([
-        CoreCatalogItems.card,
-        CoreCatalogItems.text,
-      ], catalogId: 'test_catalog'),
+    final manager = GenUiManager(
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.card,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog')
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';

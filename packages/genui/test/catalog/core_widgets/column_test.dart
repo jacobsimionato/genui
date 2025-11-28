@@ -8,11 +8,13 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Column widget renders children', (WidgetTester tester) async {
-    final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog([
-        CoreCatalogItems.column,
-        CoreCatalogItems.text,
-      ], catalogId: 'test_catalog'),
+    final manager = GenUiManager(
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.column,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog')
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -70,11 +72,13 @@ void main() {
   testWidgets('Column widget applies weight property to children', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog([
-        CoreCatalogItems.column,
-        CoreCatalogItems.text,
-      ], catalogId: 'test_catalog'),
+    final manager = GenUiManager(
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.column,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog')
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';

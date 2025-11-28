@@ -41,9 +41,9 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
-  final GenUiManager _genUiManager = GenUiManager.withSingleCatalog(
-    catalog: CoreCatalogItems.asCatalog(),
-  );
+  final GenUiManager _genUiManager = GenUiManager(catalogs: [
+    CoreCatalogItems.asCatalog(),
+  ]);
   late final A2uiContentGenerator _contentGenerator;
   late final GenUiConversation _genUiConversation;
   final List<String> _surfaceIds = ['default'];

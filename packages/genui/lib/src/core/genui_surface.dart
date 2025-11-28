@@ -62,18 +62,8 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           return const SizedBox.shrink();
         }
 
-        final String catalogId =
-            definition.catalogId ?? CoreCatalogItems.standardCatalogId;
-        final Catalog? catalog = widget.host.catalogs.firstWhereOrNull(
-          (c) => c.catalogId == catalogId,
-        );
-
+        final Catalog? catalog = _findCatalogForDefinition(definition);
         if (catalog == null) {
-          genUiLogger.severe(
-            'Catalog with id "$catalogId" not found for surface '
-            '"${widget.surfaceId}". Ensure the catalog is provided to '
-            'GenUiManager.',
-          );
           return Container();
         }
 
@@ -133,16 +123,11 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           .value;
       if (definition == null) return;
 
-      final String catalogId =
-          definition.catalogId ?? CoreCatalogItems.standardCatalogId;
-      final Catalog? catalog = widget.host.catalogs.firstWhereOrNull(
-        (c) => c.catalogId == catalogId,
-      );
-
+      final Catalog? catalog = _findCatalogForDefinition(definition);
       if (catalog == null) {
         genUiLogger.severe(
           'Cannot show modal for surface "${widget.surfaceId}" because '
-          'catalog "$catalogId" was not found.',
+          'a catalog was not found.',
         );
         return;
       }
@@ -174,5 +159,22 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
         ? UserActionEvent.fromMap(eventMap)
         : UiEvent.fromMap(eventMap);
     widget.host.handleUiEvent(newEvent);
+  }
+
+  Catalog? _findCatalogForDefinition(UiDefinition definition) {
+    final String catalogId =
+        definition.catalogId ?? CoreCatalogItems.standardCatalogId;
+    final Catalog? catalog = widget.host.catalogs.firstWhereOrNull(
+      (c) => c.catalogId == catalogId,
+    );
+
+    if (catalog == null) {
+      genUiLogger.severe(
+        'Catalog with id "$catalogId" not found for surface '
+        '"${widget.surfaceId}". Ensure the catalog is provided to '
+        'GenUiManager.',
+      );
+    }
+    return catalog;
   }
 }

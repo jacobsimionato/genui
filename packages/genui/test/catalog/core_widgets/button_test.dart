@@ -11,11 +11,13 @@ void main() {
     WidgetTester tester,
   ) async {
     ChatMessage? message;
-    final manager = GenUiManager.withSingleCatalog(
-      catalog: Catalog([
-        CoreCatalogItems.button,
-        CoreCatalogItems.text,
-      ], catalogId: 'test_catalog'),
+    final manager = GenUiManager(
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.button,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog')
+      ],
       configuration: const GenUiConfiguration(),
     );
     manager.onSubmit.listen((event) => message = event);
