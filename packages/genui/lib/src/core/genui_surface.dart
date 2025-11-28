@@ -162,8 +162,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
   }
 
   Catalog? _findCatalogForDefinition(UiDefinition definition) {
-    final String catalogId =
-        definition.catalogId ?? CoreCatalogItems.standardCatalogId;
+    final String catalogId = definition.catalogId ?? standardCatalogId;
     final Catalog? catalog = widget.host.catalogs.firstWhereOrNull(
       (c) => c.catalogId == catalogId,
     );
