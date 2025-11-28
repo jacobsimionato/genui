@@ -5,13 +5,13 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../catalog/core_catalog.dart';
 import '../core/genui_manager.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/data_model.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
+import '../primitives/constants.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 
