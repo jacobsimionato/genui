@@ -11,7 +11,9 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalogs: [Catalog([CoreCatalogItems.checkBox], catalogId: 'test_catalog')],
+      catalogs: [
+        Catalog([CoreCatalogItems.checkBox], catalogId: 'test_catalog'),
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';

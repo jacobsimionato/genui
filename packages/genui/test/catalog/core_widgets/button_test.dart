@@ -16,7 +16,7 @@ void main() {
         Catalog([
           CoreCatalogItems.button,
           CoreCatalogItems.text,
-        ], catalogId: 'test_catalog')
+        ], catalogId: 'test_catalog'),
       ],
       configuration: const GenUiConfiguration(),
     );

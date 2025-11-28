@@ -13,7 +13,7 @@ void main() {
         Catalog([
           CoreCatalogItems.card,
           CoreCatalogItems.text,
-        ], catalogId: 'test_catalog')
+        ], catalogId: 'test_catalog'),
       ],
       configuration: const GenUiConfiguration(),
     );

@@ -15,7 +15,7 @@ void main() {
         Catalog([
           CoreCatalogItems.multipleChoice,
           CoreCatalogItems.text,
-        ], catalogId: 'test_catalog')
+        ], catalogId: 'test_catalog'),
       ],
       configuration: const GenUiConfiguration(),
     );

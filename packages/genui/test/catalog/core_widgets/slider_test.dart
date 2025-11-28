@@ -11,7 +11,9 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalogs: [Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog')],
+      catalogs: [
+        Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog'),
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';

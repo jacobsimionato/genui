@@ -13,7 +13,7 @@ void main() {
         Catalog([
           CoreCatalogItems.row,
           CoreCatalogItems.text,
-        ], catalogId: 'test_catalog')
+        ], catalogId: 'test_catalog'),
       ],
       configuration: const GenUiConfiguration(),
     );
@@ -77,7 +77,7 @@ void main() {
         Catalog([
           CoreCatalogItems.row,
           CoreCatalogItems.text,
-        ], catalogId: 'test_catalog')
+        ], catalogId: 'test_catalog'),
       ],
       configuration: const GenUiConfiguration(),
     );

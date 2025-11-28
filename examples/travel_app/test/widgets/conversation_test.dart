@@ -12,9 +12,7 @@ void main() {
     late GenUiManager manager;
 
     setUp(() {
-      manager = GenUiManager(
-        catalogs: [CoreCatalogItems.asCatalog()],
-      );
+      manager = GenUiManager(catalogs: [CoreCatalogItems.asCatalog()]);
     });
 
     testWidgets('renders a list of messages', (WidgetTester tester) async {
