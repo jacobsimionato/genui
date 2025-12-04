@@ -64,6 +64,9 @@ void main() {
       );
 
       await tool.invoke(args);
+      genUiManager.handleMessage(
+        const BeginRendering(surfaceId: 'testSurface', root: 'root'),
+      );
 
       await future;
     });
@@ -99,7 +102,7 @@ void main() {
       final Future<void> future = expectLater(
         genUiManager.surfaceUpdates,
         emits(
-          isA<SurfaceUpdated>()
+          isA<SurfaceAdded>()
               .having((e) => e.surfaceId, surfaceIdKey, 'testSurface')
               .having(
                 (e) => e.definition.rootComponentId,

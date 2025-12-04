@@ -41,24 +41,19 @@ void main() {
         ),
       ];
 
-      final Future<GenUiUpdate> futureAdded = manager.surfaceUpdates.first;
       manager.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
-      final GenUiUpdate addedUpdate = await futureAdded;
-      expect(addedUpdate, isA<SurfaceAdded>());
-      expect(addedUpdate.surfaceId, surfaceId);
 
-      final Future<GenUiUpdate> futureUpdated = manager.surfaceUpdates.first;
+      final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
       manager.handleMessage(
         const BeginRendering(surfaceId: surfaceId, root: 'root'),
       );
-      final GenUiUpdate updatedUpdate = await futureUpdated;
+      final GenUiUpdate update = await futureUpdate;
 
-      expect(updatedUpdate, isA<SurfaceUpdated>());
-      expect(updatedUpdate.surfaceId, surfaceId);
-      final UiDefinition definition =
-          (updatedUpdate as SurfaceUpdated).definition;
+      expect(update, isA<SurfaceAdded>());
+      expect(update.surfaceId, surfaceId);
+      final UiDefinition definition = (update as SurfaceAdded).definition;
       expect(definition, isNotNull);
       expect(definition.rootComponentId, 'root');
       expect(manager.surfaces[surfaceId]!.value, isNotNull);
@@ -77,10 +72,6 @@ void main() {
             },
           ),
         ];
-        manager.handleMessage(
-          SurfaceUpdate(surfaceId: surfaceId, components: oldComponents),
-        );
-
         final newComponents = [
           const Component(
             id: 'root',
@@ -90,18 +81,22 @@ void main() {
           ),
         ];
 
-        final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
+        final Future<void> expectation = expectLater(
+          manager.surfaceUpdates,
+          emitsInOrder([isA<SurfaceAdded>(), isA<SurfaceUpdated>()]),
+        );
+
+        manager.handleMessage(
+          SurfaceUpdate(surfaceId: surfaceId, components: oldComponents),
+        );
+        manager.handleMessage(
+          const BeginRendering(surfaceId: surfaceId, root: 'root'),
+        );
         manager.handleMessage(
           SurfaceUpdate(surfaceId: surfaceId, components: newComponents),
         );
-        final GenUiUpdate update = await futureUpdate;
 
-        expect(update, isA<SurfaceUpdated>());
-        expect(update.surfaceId, surfaceId);
-        final UiDefinition updatedDefinition =
-            (update as SurfaceUpdated).definition;
-        expect(updatedDefinition.components['root'], newComponents[0]);
-        expect(manager.surfaces[surfaceId]!.value, updatedDefinition);
+        await expectation;
       },
     );
 
