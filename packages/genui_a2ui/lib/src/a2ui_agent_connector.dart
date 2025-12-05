@@ -130,7 +130,7 @@ class A2uiAgentConnector {
     }
 
     final payload = A2AMessageSendParams()..message = message;
-    payload.extensions = ['https://a2ui.org/ext/a2a-ui/v0.8'];
+    payload.extensions = ['https://a2ui.org/a2a-extension/v0.8'];
 
     _log.info('--- OUTGOING REQUEST ---');
     _log.info('URL: ${url.toString()}');
