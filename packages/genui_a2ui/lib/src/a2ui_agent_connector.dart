@@ -232,7 +232,7 @@ class A2uiAgentConnector {
       ..referenceTaskIds = [taskId!];
 
     final payload = A2AMessageSendParams()..message = message;
-    payload.extensions = ['https://a2ui.org/ext/a2a-ui/v0.8'];
+    payload.extensions = ['https://a2ui.org/a2a-extension/v0.8'];
 
     try {
       await client.sendMessage(payload);
