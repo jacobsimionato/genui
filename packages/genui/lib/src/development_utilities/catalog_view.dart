@@ -45,7 +45,7 @@ class DebugCatalogView extends StatefulWidget {
 }
 
 class _DebugCatalogViewState extends State<DebugCatalogView> {
-  late final GenUiManager _genUi;
+  late final A2uiMessageProcessor _genUi;
   final surfaceIds = <String>[];
   late final StreamSubscription<UserUiInteractionMessage>? _subscription;
 
@@ -53,7 +53,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
   void initState() {
     super.initState();
 
-    _genUi = GenUiManager(catalogs: [widget.catalog]);
+    _genUi = A2uiMessageProcessor(catalogs: [widget.catalog]);
     if (widget.onSubmit != null) {
       _subscription = _genUi.onSubmit.listen(widget.onSubmit);
     } else {

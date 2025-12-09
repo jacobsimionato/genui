@@ -9,11 +9,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  group('$GenUiManager', () {
-    late GenUiManager manager;
+  group('$A2uiMessageProcessor', () {
+    late A2uiMessageProcessor manager;
 
     setUp(() {
-      manager = GenUiManager(
+      manager = A2uiMessageProcessor(
         catalogs: [CoreCatalogItems.asCatalog()],
         configuration: const GenUiConfiguration(
           actions: ActionsConfig(
@@ -32,7 +32,7 @@ void main() {
     test('can be initialized with multiple catalogs', () {
       final catalog1 = const Catalog([], catalogId: 'cat1');
       final catalog2 = const Catalog([], catalogId: 'cat2');
-      final multiManager = GenUiManager(catalogs: [catalog1, catalog2]);
+      final multiManager = A2uiMessageProcessor(catalogs: [catalog1, catalog2]);
       expect(multiManager.catalogs, contains(catalog1));
       expect(multiManager.catalogs, contains(catalog2));
       expect(multiManager.catalogs.length, 2);

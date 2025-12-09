@@ -10,7 +10,7 @@ void main() {
   testWidgets('MultipleChoice widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
+    final manager = A2uiMessageProcessor(
       catalogs: [
         Catalog([
           CoreCatalogItems.multipleChoice,

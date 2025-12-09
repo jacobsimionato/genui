@@ -11,7 +11,7 @@ void main() {
     final Catalog testCatalog = CoreCatalogItems.asCatalog();
 
     ChatMessage? message;
-    GenUiManager? manager;
+    A2uiMessageProcessor? manager;
 
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
@@ -20,7 +20,7 @@ void main() {
     ) async {
       message = null;
       manager?.dispose();
-      manager = GenUiManager(
+      manager = A2uiMessageProcessor(
         catalogs: [testCatalog],
         configuration: const GenUiConfiguration(),
       );

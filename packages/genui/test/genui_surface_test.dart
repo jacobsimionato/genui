@@ -8,14 +8,14 @@ import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
 void main() {
-  late GenUiManager manager;
+  late A2uiMessageProcessor manager;
   final testCatalog = Catalog([
     CoreCatalogItems.button,
     CoreCatalogItems.text,
   ], catalogId: 'test_catalog');
 
   setUp(() {
-    manager = GenUiManager(
+    manager = A2uiMessageProcessor(
       catalogs: [testCatalog],
       configuration: const GenUiConfiguration(),
     );

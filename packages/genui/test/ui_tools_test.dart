@@ -7,12 +7,12 @@ import 'package:genui/genui.dart';
 
 void main() {
   group('UI Tools', () {
-    late GenUiManager genUiManager;
+    late A2uiMessageProcessor a2uiMessageProcessor;
     late Catalog catalog;
 
     setUp(() {
       catalog = CoreCatalogItems.asCatalog();
-      genUiManager = GenUiManager(
+      a2uiMessageProcessor = A2uiMessageProcessor(
         catalogs: [catalog],
         configuration: const GenUiConfiguration(
           actions: ActionsConfig(
@@ -26,7 +26,7 @@ void main() {
 
     test('SurfaceUpdateTool sends SurfaceUpdate message', () async {
       final tool = SurfaceUpdateTool(
-        handleMessage: genUiManager.handleMessage,
+        handleMessage: a2uiMessageProcessor.handleMessage,
         catalog: catalog,
         configuration: const GenUiConfiguration(),
       );
@@ -46,7 +46,7 @@ void main() {
       };
 
       final Future<void> future = expectLater(
-        genUiManager.surfaceUpdates,
+        a2uiMessageProcessor.surfaceUpdates,
         emits(
           isA<SurfaceAdded>()
               .having((e) => e.surfaceId, surfaceIdKey, 'testSurface')
@@ -64,7 +64,7 @@ void main() {
       );
 
       await tool.invoke(args);
-      genUiManager.handleMessage(
+      a2uiMessageProcessor.handleMessage(
         const BeginRendering(surfaceId: 'testSurface', root: 'root'),
       );
 
@@ -73,7 +73,7 @@ void main() {
 
     test('BeginRenderingTool sends BeginRendering message', () async {
       final tool = BeginRenderingTool(
-        handleMessage: genUiManager.handleMessage,
+        handleMessage: a2uiMessageProcessor.handleMessage,
         catalogId: 'test_catalog',
       );
 
@@ -83,7 +83,7 @@ void main() {
       };
 
       // First, add a component to the surface so that the root can be set.
-      genUiManager.handleMessage(
+      a2uiMessageProcessor.handleMessage(
         const SurfaceUpdate(
           surfaceId: 'testSurface',
           components: [
@@ -101,7 +101,7 @@ void main() {
 
       // Use expectLater to wait for the stream to emit the correct event.
       final Future<void> future = expectLater(
-        genUiManager.surfaceUpdates,
+        a2uiMessageProcessor.surfaceUpdates,
         emits(
           isA<SurfaceAdded>()
               .having((e) => e.surfaceId, surfaceIdKey, 'testSurface')
