@@ -109,7 +109,8 @@ class _SamplesViewState extends State<SamplesView> {
       _surfaceIds.clear();
       _currentSurfaceIndex = 0;
     });
-    // Re-create A2uiMessageProcessor to ensure a clean state for the new sample.
+    // Re-create A2uiMessageProcessor to ensure a clean state for the new
+    // sample.
     _a2uiMessageProcessor.dispose();
     _a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [widget.catalog]);
     _setupSurfaceListener();
