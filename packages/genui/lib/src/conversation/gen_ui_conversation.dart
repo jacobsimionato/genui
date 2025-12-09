@@ -17,8 +17,8 @@ import '../model/ui_models.dart';
 ///
 /// This class simplifies the process of creating a generative UI by managing
 /// the conversation loop and the interaction with the AI. It encapsulates a
-/// `A2uiMessageProcessor` and a `ContentGenerator`, providing a single entry point for
-/// sending user requests and receiving UI updates.
+/// `A2uiMessageProcessor` and a `ContentGenerator`, providing a single entry
+/// point for sending user requests and receiving UI updates.
 ///
 /// This is a convenience facade for the specific use case of a linear
 /// conversation that can contain Gen UI surfaces.

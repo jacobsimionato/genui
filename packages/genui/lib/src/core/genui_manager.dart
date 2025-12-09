@@ -15,7 +15,8 @@ import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import 'genui_configuration.dart';
 
-/// A sealed class representing an update to the UI managed by [A2uiMessageProcessor].
+/// A sealed class representing an update to the UI managed by
+/// [A2uiMessageProcessor].
 ///
 /// This class has three subclasses: [SurfaceAdded], [SurfaceUpdated], and
 /// [SurfaceRemoved].
@@ -85,7 +86,8 @@ abstract interface class GenUiHost {
 /// `beginRendering`) that the AI uses to manipulate the UI. It exposes a stream
 /// of `GenUiUpdate` events so that the application can react to changes.
 class A2uiMessageProcessor implements GenUiHost {
-  /// Creates a new [A2uiMessageProcessor] with a list of supported widget catalogs.
+  /// Creates a new [A2uiMessageProcessor] with a list of supported widget
+  /// catalogs.
   A2uiMessageProcessor({
     required this.catalogs,
     this.configuration = const GenUiConfiguration(),
