@@ -12,23 +12,13 @@ void main() {
 
     setUp(() {
       catalog = CoreCatalogItems.asCatalog();
-      a2uiMessageProcessor = A2uiMessageProcessor(
-        catalogs: [catalog],
-        configuration: const GenUiConfiguration(
-          actions: ActionsConfig(
-            allowCreate: true,
-            allowUpdate: true,
-            allowDelete: true,
-          ),
-        ),
-      );
+      a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [catalog]);
     });
 
     test('SurfaceUpdateTool sends SurfaceUpdate message', () async {
       final tool = SurfaceUpdateTool(
         handleMessage: a2uiMessageProcessor.handleMessage,
         catalog: catalog,
-        configuration: const GenUiConfiguration(),
       );
 
       final Map<String, Object> args = {

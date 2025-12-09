@@ -13,7 +13,6 @@ import '../model/chat_message.dart';
 import '../model/data_model.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
-import 'genui_configuration.dart';
 
 /// A sealed class representing an update to the UI managed by
 /// [A2uiMessageProcessor].
@@ -88,12 +87,7 @@ abstract interface class GenUiHost {
 class A2uiMessageProcessor implements GenUiHost {
   /// Creates a new [A2uiMessageProcessor] with a list of supported widget
   /// catalogs.
-  A2uiMessageProcessor({
-    required this.catalogs,
-    this.configuration = const GenUiConfiguration(),
-  });
-
-  final GenUiConfiguration configuration;
+  A2uiMessageProcessor({required this.catalogs});
 
   @override
   final Iterable<Catalog> catalogs;

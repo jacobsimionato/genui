@@ -11,7 +11,7 @@ void main() {
     final Catalog testCatalog = CoreCatalogItems.asCatalog();
 
     ChatMessage? message;
-    A2uiMessageProcessor? manager;
+    A2uiMessageProcessor? messageProcessor;
 
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
@@ -19,17 +19,14 @@ void main() {
       List<Component> components,
     ) async {
       message = null;
-      manager?.dispose();
-      manager = A2uiMessageProcessor(
-        catalogs: [testCatalog],
-        configuration: const GenUiConfiguration(),
-      );
-      manager!.onSubmit.listen((event) => message = event);
+      messageProcessor?.dispose();
+      messageProcessor = A2uiMessageProcessor(catalogs: [testCatalog]);
+      messageProcessor!.onSubmit.listen((event) => message = event);
       const surfaceId = 'testSurface';
-      manager!.handleMessage(
+      messageProcessor!.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
-      manager!.handleMessage(
+      messageProcessor!.handleMessage(
         BeginRendering(
           surfaceId: surfaceId,
           root: rootId,
@@ -39,7 +36,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GenUiSurface(host: manager!, surfaceId: surfaceId),
+            body: GenUiSurface(host: messageProcessor!, surfaceId: surfaceId),
           ),
         ),
       );
