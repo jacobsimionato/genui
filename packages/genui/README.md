@@ -342,33 +342,44 @@ produces the widgets that compose the generated UI.
 final riddleCard = CatalogItem(
   name: 'RiddleCard',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final json = data as Map<String, Object?>;
-        final question = json['question'] as String;
-        final answer = json['answer'] as String;
+  widgetBuilder: (context) {
+    final questionNotifier = context.dataContext.subscribeToString(
+      context.data['question'] as Map<String, Object?>?,
+    );
+    final answerNotifier = context.dataContext.subscribeToString(
+      context.data['answer'] as Map<String, Object?>?,
+    );
 
-        return Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          decoration: BoxDecoration(border: Border.all()),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(question, style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: 8.0),
-              Text(answer, style: Theme.of(context).textTheme.headlineSmall),
-            ],
-          ),
+    return ValueListenableBuilder<String?>(
+      valueListenable: questionNotifier,
+      builder: (context, question, _) {
+        return ValueListenableBuilder<String?>(
+          valueListenable: answerNotifier,
+          builder: (context, answer, _) {
+            return Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              decoration: BoxDecoration(border: Border.all()),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    question ?? '',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    answer ?? '',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
+    );
+  },
 );
 ```
 

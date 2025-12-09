@@ -244,51 +244,42 @@ final _schema = S.object(
 final riddleCard = CatalogItem(
   name: 'RiddleCard',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final questionNotifier = dataContext.subscribeToString(
-          json['question'] as Map<String, Object?>?,
-        );
-        final answerNotifier = dataContext.subscribeToString(
-          json['answer'] as Map<String, Object?>?,
-        );
+  widgetBuilder: (context) {
+    final questionNotifier = context.dataContext.subscribeToString(
+      context.data['question'] as Map<String, Object?>?,
+    );
+    final answerNotifier = context.dataContext.subscribeToString(
+      context.data['answer'] as Map<String, Object?>?,
+    );
 
-        // 3. Use ValueListenableBuilder to build the UI reactively
+    return ValueListenableBuilder<String?>(
+      valueListenable: questionNotifier,
+      builder: (context, question, _) {
         return ValueListenableBuilder<String?>(
-          valueListenable: questionNotifier,
-          builder: (context, question, _) {
-            return ValueListenableBuilder<String?>(
-              valueListenable: answerNotifier,
-              builder: (context, answer, _) {
-                return Container(
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  decoration: BoxDecoration(border: Border.all()),
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        question ?? '',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        answer ?? '',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                    ],
+          valueListenable: answerNotifier,
+          builder: (context, answer, _) {
+            return Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              decoration: BoxDecoration(border: Border.all()),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    question ?? '',
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                );
-              },
+                  const SizedBox(height: 8.0),
+                  Text(
+                    answer ?? '',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ],
+              ),
             );
           },
         );
       },
+    );
+  },
 );

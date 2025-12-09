@@ -85,7 +85,7 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'text', components);
-      manager!
+      messageProcessor!
           .dataModelForSurface('testSurface')
           .update(DataPath('/myText'), 'Hello from data model');
       await tester.pumpAndSettle();
@@ -146,7 +146,7 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'field', components);
-      manager!
+      messageProcessor!
           .dataModelForSurface('testSurface')
           .update(DataPath('/myValue'), 'initial');
       await tester.pumpAndSettle();
@@ -159,7 +159,7 @@ void main() {
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
       expect(
-        manager!
+        messageProcessor!
             .dataModelForSurface('testSurface')
             .getValue<String>(DataPath('/myValue')),
         'new value',
