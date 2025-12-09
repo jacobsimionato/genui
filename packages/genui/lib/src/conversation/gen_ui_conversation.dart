@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../content_generator.dart';
-import '../core/genui_manager.dart';
+import '../core/a2ui_message_processor.dart';
 import '../model/a2ui_client_capabilities.dart';
 import '../model/a2ui_message.dart';
 import '../model/chat_message.dart';
