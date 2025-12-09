@@ -27,9 +27,9 @@ Future<void> loadImagesJson() async {
 /// The main page for the travel planner application.
 ///
 /// This stateful widget manages the core user interface and application logic.
-/// It initializes the [A2uiMessageProcessor] and [ContentGenerator], maintains the
-/// conversation history, and handles the interaction between the user, the AI,
-/// and the dynamically generated UI.
+/// It initializes the [A2uiMessageProcessor] and [ContentGenerator], maintains
+/// the conversation history, and handles the interaction between the user, the
+/// AI, and the dynamically generated UI.
 ///
 /// The page allows users to interact with the generative AI to plan trips. It
 /// features a text field to send prompts, a view to display the dynamically
