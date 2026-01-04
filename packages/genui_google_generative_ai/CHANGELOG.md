@@ -1,5 +1,9 @@
 # `genui_google_generative_ai` Changelog
 
+## 0.6.1
+
+- **Fix**: Ensure bytes are not null when creating Blob in content converter.
+
 ## 0.6.0
 
 - **BREAKING**: Removed `GenUiConfiguration` from `GoogleGenerativeAiContentGenerator`.

@@ -1,5 +1,9 @@
 # `genui_a2ui` Changelog
 
+## 0.6.1
+
+- **Refactor**: Switched to using a local implementation of the A2A client library, removing the dependency on `package:a2a` (#627).
+
 ## 0.6.0
 
 - **BREAKING**: Updated to use `A2uiMessageProcessor` instead of `GenUiManager`.
