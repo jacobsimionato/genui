@@ -61,7 +61,7 @@ extension type UserActionEvent.fromMap(JsonMap _json) implements UiEvent {
     DateTime? timestamp,
     JsonMap? context,
   }) : _json = {
-         if (surfaceId != null) surfaceIdKey: surfaceId,
+         surfaceIdKey: ?surfaceId,
          'name': name,
          'sourceComponentId': sourceComponentId,
          'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
@@ -72,6 +72,13 @@ extension type UserActionEvent.fromMap(JsonMap _json) implements UiEvent {
   String get name => _json['name'] as String;
   String get sourceComponentId => _json['sourceComponentId'] as String;
   JsonMap get context => _json['context'] as JsonMap;
+}
+
+final class _Json {
+  static const String rootComponentId = 'rootComponentId';
+  static const String catalogId = 'catalogId';
+  static const String components = 'components';
+  static const String styles = 'styles';
 }
 
 /// A data object that represents the entire UI definition.
@@ -103,6 +110,21 @@ class UiDefinition {
     this.styles,
   }) : _components = components;
 
+  /// Creates a [UiDefinition] from a JSON map.
+  factory UiDefinition.fromJson(JsonMap json) {
+    return UiDefinition(
+      surfaceId: json[surfaceIdKey] as String,
+      rootComponentId: json[_Json.rootComponentId] as String?,
+      catalogId: json[_Json.catalogId] as String?,
+      components:
+          (json[_Json.components] as Map<String, Object?>?)?.map(
+            (key, value) => MapEntry(key, Component.fromJson(value as JsonMap)),
+          ) ??
+          const {},
+      styles: json[_Json.styles] as JsonMap?,
+    );
+  }
+
   /// Creates a copy of this [UiDefinition] with the given fields replaced.
   UiDefinition copyWith({
     String? rootComponentId,
@@ -123,10 +145,12 @@ class UiDefinition {
   JsonMap toJson() {
     return {
       surfaceIdKey: surfaceId,
-      'rootComponentId': rootComponentId,
-      'components': components.map(
+      if (rootComponentId != null) _Json.rootComponentId: rootComponentId,
+      if (catalogId != null) _Json.catalogId: catalogId,
+      _Json.components: components.map(
         (key, value) => MapEntry(key, value.toJson()),
       ),
+      if (styles != null) _Json.styles: styles,
     };
   }
 
