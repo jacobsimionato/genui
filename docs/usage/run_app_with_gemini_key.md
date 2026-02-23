@@ -6,7 +6,6 @@ Obtain a Google Cloud API key with access
 to the Generative Language API from the
 [Google AI Studio](https://aistudio.google.com/app/apikey).
 
-
 ## Set up the API key
 
 * Option 1: Using the VS Code based IDE UI
