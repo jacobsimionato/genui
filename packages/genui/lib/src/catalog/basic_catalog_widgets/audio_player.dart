@@ -13,7 +13,6 @@ import '../../widgets/widget_utilities.dart';
 final _schema = S.object(
   description: 'An audio player component that plays audio from a given URL.',
   properties: {
-    'component': S.string(enumValues: ['AudioPlayer']),
     'url': A2uiSchemas.stringReference(
       description: 'The URL of the audio to play.',
     ),
@@ -21,7 +20,7 @@ final _schema = S.object(
       description: 'A description of the audio, such as a title or summary.',
     ),
   },
-  required: ['component', 'url'],
+  required: ['url'],
 );
 
 /// A catalog item for an audio player.

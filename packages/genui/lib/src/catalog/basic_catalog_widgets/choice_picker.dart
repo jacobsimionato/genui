@@ -16,7 +16,6 @@ final _schema = S.object(
   description:
       'A component that allows selecting one or more options from a list.',
   properties: {
-    'component': S.string(enumValues: ['ChoicePicker']),
     'label': A2uiSchemas.stringReference(
       description: 'The label for the group of options.',
     ),
@@ -57,7 +56,7 @@ final _schema = S.object(
     ),
     'checks': A2uiSchemas.checkable(),
   },
-  required: ['component', 'options', 'value'],
+  required: ['options', 'value'],
 );
 
 extension type _ChoicePickerData.fromMap(JsonMap _json) {
