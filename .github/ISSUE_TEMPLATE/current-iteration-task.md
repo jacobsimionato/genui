@@ -1,8 +1,8 @@
 ---
-name: Current iteration task
-about: Represents a concrete implementation task that needs completing now
+name: Sprint Task
+about: An issue used sprint planning
 title: ''
-labels: P1
+labels: P2, sprint ready
 assignees: ''
 
 ---
