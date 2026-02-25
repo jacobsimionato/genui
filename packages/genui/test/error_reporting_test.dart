@@ -163,7 +163,7 @@ class FailFunction extends SynchronousClientFunction {
   Schema get argumentSchema => S.object();
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     throw Exception('Function failed explicitly');
   }
 }
