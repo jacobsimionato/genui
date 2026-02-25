@@ -16,6 +16,7 @@ enum ItineraryEntryStatus { noBookingRequired, choiceRequired, chosen }
 final _schema = S.object(
   description: 'Widget to show an itinerary or a plan for travel.',
   properties: {
+    'component': S.string(enumValues: ['Itinerary']),
     'title': A2uiSchemas.stringReference(
       description: 'The title of the itinerary.',
     ),
@@ -114,31 +115,31 @@ final _schema = S.object(
       ),
     ),
   },
-  required: ['title', 'subheading', 'imageChildId', 'days'],
+  required: ['component', 'title', 'subheading', 'imageChildId', 'days'],
 );
 
 extension type _ItineraryData.fromMap(Map<String, Object?> _json) {
-  JsonMap get title => _json['title'] as JsonMap;
-  JsonMap get subheading => _json['subheading'] as JsonMap;
+  Object get title => _json['title'] as Object;
+  Object get subheading => _json['subheading'] as Object;
   String get imageChildId => _json['imageChildId'] as String;
   List<JsonMap> get days => (_json['days'] as List).cast<JsonMap>();
 }
 
 extension type _ItineraryDayData.fromMap(Map<String, Object?> _json) {
-  JsonMap get title => _json['title'] as JsonMap;
-  JsonMap get subtitle => _json['subtitle'] as JsonMap;
-  JsonMap get description => _json['description'] as JsonMap;
+  Object get title => _json['title'] as Object;
+  Object get subtitle => _json['subtitle'] as Object;
+  Object get description => _json['description'] as Object;
   String get imageChildId => _json['imageChildId'] as String;
   List<JsonMap> get entries => (_json['entries'] as List).cast<JsonMap>();
 }
 
 extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
-  JsonMap get title => _json['title'] as JsonMap;
-  JsonMap? get subtitle => _json['subtitle'] as JsonMap?;
-  JsonMap get bodyText => _json['bodyText'] as JsonMap;
-  JsonMap? get address => _json['address'] as JsonMap?;
-  JsonMap get time => _json['time'] as JsonMap;
-  JsonMap? get totalCost => _json['totalCost'] as JsonMap?;
+  Object get title => _json['title'] as Object;
+  Object? get subtitle => _json['subtitle'];
+  Object get bodyText => _json['bodyText'] as Object;
+  Object? get address => _json['address'];
+  Object get time => _json['time'] as Object;
+  Object? get totalCost => _json['totalCost'];
   ItineraryEntryType get type =>
       ItineraryEntryType.values.byName(_json['type'] as String);
   ItineraryEntryStatus get status =>
@@ -155,66 +156,37 @@ final itinerary = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Itinerary": {
-              "title": {
-                "literalString": "My Awesome Trip"
-              },
-              "subheading": {
-                "literalString": "A 3-day adventure"
-              },
-              "imageChildId": "image1",
-              "days": [
+          "component": "Itinerary",
+          "title": "My Awesome Trip",
+          "subheading": "A 3-day adventure",
+          "imageChildId": "image1",
+          "days": [
+            {
+              "title": "Day 1",
+              "subtitle": "Arrival and Exploration",
+              "description": "Welcome to the city!",
+              "imageChildId": "image2",
+              "entries": [
                 {
-                  "title": {
-                    "literalString": "Day 1"
-                  },
-                  "subtitle": {
-                    "literalString": "Arrival and Exploration"
-                  },
-                  "description": {
-                    "literalString": "Welcome to the city!"
-                  },
-                  "imageChildId": "image2",
-                  "entries": [
-                    {
-                      "title": {
-                        "literalString": "Check-in to Hotel"
-                      },
-                      "bodyText": {
-                        "literalString": "Check-in to your hotel and relax."
-                      },
-                      "time": {
-                        "literalString": "3:00 PM"
-                      },
-                      "type": "accommodation",
-                      "status": "noBookingRequired"
-                    }
-                  ]
+                  "title": "Check-in to Hotel",
+                  "bodyText": "Check-in to your hotel and relax.",
+                  "time": "3:00 PM",
+                  "type": "accommodation",
+                  "status": "noBookingRequired"
                 }
               ]
             }
-          }
+          ]
         },
         {
           "id": "image1",
-          "component": {
-            "Image": {
-              "url": {
-                "literalString": "assets/travel_images/canyonlands_national_park_utah.jpg"
-              }
-            }
-          }
+          "component": "Image",
+          "url": "assets/travel_images/canyonlands_national_park_utah.jpg"
         },
         {
           "id": "image2",
-          "component": {
-            "Image": {
-              "url": {
-                "literalString": "assets/travel_images/brooklyn_bridge_new_york.jpg"
-              }
-            }
-          }
+          "component": "Image",
+          "url": "assets/travel_images/brooklyn_bridge_new_york.jpg"
         }
       ]
     ''',
@@ -224,15 +196,11 @@ final itinerary = CatalogItem(
       context.data as Map<String, Object?>,
     );
 
-    final ValueNotifier<String?> titleNotifier = context.dataContext
-        .subscribeToString(itineraryData.title);
-    final ValueNotifier<String?> subheadingNotifier = context.dataContext
-        .subscribeToString(itineraryData.subheading);
     final Widget imageChild = context.buildChild(itineraryData.imageChildId);
 
     return _Itinerary(
-      titleNotifier: titleNotifier,
-      subheadingNotifier: subheadingNotifier,
+      title: itineraryData.title,
+      subheading: itineraryData.subheading,
       imageChild: imageChild,
       days: itineraryData.days,
       widgetId: context.id,
@@ -244,8 +212,8 @@ final itinerary = CatalogItem(
 );
 
 class _Itinerary extends StatelessWidget {
-  final ValueNotifier<String?> titleNotifier;
-  final ValueNotifier<String?> subheadingNotifier;
+  final Object title;
+  final Object subheading;
   final Widget imageChild;
   final List<JsonMap> days;
   final String widgetId;
@@ -254,8 +222,8 @@ class _Itinerary extends StatelessWidget {
   final DataContext dataContext;
 
   const _Itinerary({
-    required this.titleNotifier,
-    required this.subheadingNotifier,
+    required this.title,
+    required this.subheading,
     required this.imageChild,
     required this.days,
     required this.widgetId,
@@ -301,13 +269,36 @@ class _Itinerary extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16.0,
                               ),
-                              child: ValueListenableBuilder<String?>(
-                                valueListenable: titleNotifier,
-                                builder: (context, title, _) => Text(
-                                  title ?? '',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.headlineMedium,
+                              child: BoundString(
+                                dataContext: dataContext,
+                                value: title,
+                                builder: (context, title) => Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      title ?? '',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.headlineMedium,
+                                    ),
+                                    const SizedBox(height: 8.0),
+                                    Builder(
+                                      builder: (context) {
+                                        return ElevatedButton(
+                                          onPressed: () async {
+                                            dispatchEvent(
+                                              UserActionEvent(
+                                                name: 'viewItinerary',
+                                                sourceComponentId: widgetId,
+                                                context: <String, Object?>{},
+                                              ),
+                                            );
+                                          },
+                                          child: const Text('View Details'),
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -356,16 +347,18 @@ class _Itinerary extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ValueListenableBuilder<String?>(
-                    valueListenable: titleNotifier,
-                    builder: (context, title, _) => Text(
+                  BoundString(
+                    dataContext: dataContext,
+                    value: title,
+                    builder: (context, title) => Text(
                       title ?? '',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                   ),
-                  ValueListenableBuilder<String?>(
-                    valueListenable: subheadingNotifier,
-                    builder: (context, subheading, _) => Text(
+                  BoundString(
+                    dataContext: dataContext,
+                    value: subheading,
+                    builder: (context, subheading) => Text(
                       subheading ?? '',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
@@ -398,13 +391,6 @@ class _ItineraryDay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final ValueNotifier<String?> titleNotifier = dataContext.subscribeToString(
-      data.title,
-    );
-    final ValueNotifier<String?> subtitleNotifier = dataContext
-        .subscribeToString(data.subtitle);
-    final ValueNotifier<String?> descriptionNotifier = dataContext
-        .subscribeToString(data.description);
     final Widget imageChild = buildChild(data.imageChildId);
 
     return Padding(
@@ -430,17 +416,19 @@ class _ItineraryDay extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ValueListenableBuilder<String?>(
-                        valueListenable: titleNotifier,
-                        builder: (context, value, _) => Text(
+                      BoundString(
+                        dataContext: dataContext,
+                        value: data.title,
+                        builder: (context, value) => Text(
                           value ?? '',
                           style: theme.textTheme.headlineSmall,
                         ),
                       ),
                       const SizedBox(height: 4.0),
-                      ValueListenableBuilder<String?>(
-                        valueListenable: subtitleNotifier,
-                        builder: (context, value, _) => Text(
+                      BoundString(
+                        dataContext: dataContext,
+                        value: data.subtitle,
+                        builder: (context, value) => Text(
                           value ?? '',
                           style: theme.textTheme.titleMedium,
                         ),
@@ -451,9 +439,10 @@ class _ItineraryDay extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8.0),
-            ValueListenableBuilder<String?>(
-              valueListenable: descriptionNotifier,
-              builder: (context, description, _) =>
+            BoundString(
+              dataContext: dataContext,
+              value: data.description,
+              builder: (context, description) =>
                   MarkdownWidget(text: description ?? ''),
             ),
             const SizedBox(height: 8.0),
@@ -499,20 +488,6 @@ class _ItineraryEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final ValueNotifier<String?> titleNotifier = dataContext.subscribeToString(
-      data.title,
-    );
-    final ValueNotifier<String?> subtitleNotifier = dataContext
-        .subscribeToString(data.subtitle);
-    final ValueNotifier<String?> bodyTextNotifier = dataContext
-        .subscribeToString(data.bodyText);
-    final ValueNotifier<String?> addressNotifier = dataContext
-        .subscribeToString(data.address);
-    final ValueNotifier<String?> timeNotifier = dataContext.subscribeToString(
-      data.time,
-    );
-    final ValueNotifier<String?> totalCostNotifier = dataContext
-        .subscribeToString(data.totalCost);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -529,9 +504,10 @@ class _ItineraryEntry extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: ValueListenableBuilder<String?>(
-                        valueListenable: titleNotifier,
-                        builder: (context, title, _) => Text(
+                      child: BoundString(
+                        dataContext: dataContext,
+                        value: data.title,
+                        builder: (context, title) => Text(
                           title ?? '',
                           style: theme.textTheme.titleMedium,
                         ),
@@ -540,23 +516,28 @@ class _ItineraryEntry extends StatelessWidget {
                     if (data.status == ItineraryEntryStatus.chosen)
                       const Icon(Icons.check_circle, color: Colors.green)
                     else if (data.status == ItineraryEntryStatus.choiceRequired)
-                      ValueListenableBuilder<String?>(
-                        valueListenable: titleNotifier,
-                        builder: (context, title, _) => FilledButton(
-                          onPressed: () {
+                      BoundString(
+                        dataContext: dataContext,
+                        value: data.title,
+                        builder: (context, title) => FilledButton(
+                          onPressed: () async {
                             final JsonMap? actionData =
                                 data.choiceRequiredAction;
                             if (actionData == null) {
                               return;
                             }
-                            final actionName = actionData['name'] as String;
-                            final List<Object?> contextDefinition =
-                                (actionData['context'] as List<Object?>?) ??
-                                <Object>[];
-                            final JsonMap resolvedContext = resolveContext(
-                              dataContext,
-                              contextDefinition,
-                            );
+                            final event = actionData['event'] as JsonMap?;
+                            if (event == null) {
+                              return;
+                            }
+                            final actionName = event['name'] as String;
+                            final contextDefinition =
+                                event['context'] as JsonMap?;
+                            final JsonMap resolvedContext =
+                                await resolveContext(
+                                  dataContext,
+                                  contextDefinition,
+                                );
                             dispatchEvent(
                               UserActionEvent(
                                 name: actionName,
@@ -571,66 +552,80 @@ class _ItineraryEntry extends StatelessWidget {
                       ),
                   ],
                 ),
-                OptionalValueBuilder(
-                  listenable: subtitleNotifier,
-                  builder: (context, subtitle) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Text(subtitle, style: theme.textTheme.bodySmall),
-                    );
-                  },
-                ),
+                if (data.subtitle != null)
+                  BoundString(
+                    dataContext: dataContext,
+                    value: data.subtitle!,
+                    builder: (context, subtitle) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          subtitle ?? '',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      );
+                    },
+                  ),
                 const SizedBox(height: 8.0),
                 Row(
                   children: [
                     const Icon(Icons.access_time, size: 16.0),
                     const SizedBox(width: 4.0),
-                    ValueListenableBuilder<String?>(
-                      valueListenable: timeNotifier,
-                      builder: (context, time, _) =>
+                    BoundString(
+                      dataContext: dataContext,
+                      value: data.time,
+                      builder: (context, time) =>
                           Text(time ?? '', style: theme.textTheme.bodyMedium),
                     ),
                   ],
                 ),
-                OptionalValueBuilder(
-                  listenable: addressNotifier,
-                  builder: (context, address) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.location_on, size: 16.0),
-                          const SizedBox(width: 4.0),
-                          Expanded(
-                            child: Text(
-                              address,
+                if (data.address != null)
+                  BoundString(
+                    dataContext: dataContext,
+                    value: data.address!,
+                    builder: (context, address) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.location_on, size: 16.0),
+                            const SizedBox(width: 4.0),
+                            Expanded(
+                              child: Text(
+                                address ?? '',
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                if (data.totalCost != null)
+                  BoundString(
+                    dataContext: dataContext,
+                    value: data.totalCost!,
+                    builder: (context, totalCost) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.attach_money, size: 16.0),
+                            const SizedBox(width: 4.0),
+                            Text(
+                              totalCost ?? '',
                               style: theme.textTheme.bodyMedium,
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                OptionalValueBuilder(
-                  listenable: totalCostNotifier,
-                  builder: (context, totalCost) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.attach_money, size: 16.0),
-                          const SizedBox(width: 4.0),
-                          Text(totalCost, style: theme.textTheme.bodyMedium),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 const SizedBox(height: 8.0),
-                ValueListenableBuilder<String?>(
-                  valueListenable: bodyTextNotifier,
-                  builder: (context, bodyText, _) =>
+                BoundString(
+                  dataContext: dataContext,
+                  value: data.bodyText,
+                  builder: (context, bodyText) =>
                       MarkdownWidget(text: bodyText ?? ''),
                 ),
               ],

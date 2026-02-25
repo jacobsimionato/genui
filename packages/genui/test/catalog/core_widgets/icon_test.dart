@@ -10,37 +10,28 @@ void main() {
   testWidgets('Icon widget renders with literal string', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
+    final surfaceController = SurfaceController(
       catalogs: [
-        Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
+        Catalog([BasicCatalogItems.icon], catalogId: 'test_catalog'),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
-      const Component(
-        id: 'icon',
-        componentProperties: {
-          'Icon': {
-            'name': {'literalString': 'add'},
-          },
-        },
-      ),
+      const Component(id: 'root', type: 'Icon', properties: {'name': 'add'}),
     ];
-    manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+    surfaceController.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'icon',
-        catalogId: 'test_catalog',
-      ),
+    surfaceController.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
         ),
       ),
     );
@@ -51,44 +42,41 @@ void main() {
   testWidgets('Icon widget renders with data binding', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
+    final surfaceController = SurfaceController(
       catalogs: [
-        Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
+        Catalog([BasicCatalogItems.icon], catalogId: 'test_catalog'),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'icon',
-        componentProperties: {
-          'Icon': {
-            'name': {'path': '/iconName'},
-          },
+        id: 'root',
+        type: 'Icon',
+        properties: {
+          'name': {'path': '/iconName'},
         },
       ),
     ];
-    manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+    surfaceController.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const DataModelUpdate(
+    surfaceController.handleMessage(
+      UpdateDataModel(
         surfaceId: 'testSurface',
-        path: '/iconName',
-        contents: 'close',
+        path: DataPath('/iconName'),
+        value: 'close',
       ),
     );
-    manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'icon',
-        catalogId: 'test_catalog',
-      ),
+    surfaceController.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
         ),
       ),
     );

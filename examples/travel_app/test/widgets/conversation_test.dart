@@ -4,47 +4,55 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui/genui.dart';
+import 'package:genui/genui.dart' hide Conversation;
+
 import 'package:travel_app/src/widgets/conversation.dart';
 
 void main() {
   group('Conversation', () {
-    late A2uiMessageProcessor manager;
+    late SurfaceController surfaceController;
 
     setUp(() {
-      manager = A2uiMessageProcessor(catalogs: [CoreCatalogItems.asCatalog()]);
+      surfaceController = SurfaceController(
+        catalogs: [BasicCatalogItems.asCatalog()],
+      );
     });
 
     testWidgets('renders a list of messages', (WidgetTester tester) async {
       const surfaceId = 's1';
-      final List<ChatMessage> messages = [
-        UserMessage.text('Hello'),
-        AiUiMessage(
-          surfaceId: surfaceId,
-          definition: UiDefinition(surfaceId: surfaceId),
+      final messages = <ChatMessage>[
+        ChatMessage.user('Hello'),
+        ChatMessage.model(
+          '',
+          parts: [
+            UiPart.create(
+              definition: SurfaceDefinition(surfaceId: surfaceId),
+              surfaceId: surfaceId,
+            ),
+          ],
         ),
       ];
       final components = [
         const Component(
-          id: 'r1',
-          componentProperties: {
-            'Text': {
-              'text': {'literalString': 'Hi there!'},
-            },
-          },
+          id: 'root',
+          type: 'Text',
+          properties: {'text': 'Hi there!'},
         ),
       ];
-      manager.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      surfaceController.handleMessage(
+        UpdateComponents(surfaceId: surfaceId, components: components),
       );
-      manager.handleMessage(
-        const BeginRendering(surfaceId: surfaceId, root: 'r1'),
+      surfaceController.handleMessage(
+        const CreateSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
       );
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Conversation(messages: messages, manager: manager),
+            body: Conversation(
+              messages: messages,
+              surfaceController: surfaceController,
+            ),
           ),
         ),
       );
@@ -54,13 +62,14 @@ void main() {
       expect(find.text('Hi there!'), findsOneWidget);
     });
     testWidgets('renders UserPrompt correctly', (WidgetTester tester) async {
-      final messages = [
-        UserMessage([const TextPart('Hello')]),
-      ];
+      final messages = [ChatMessage.user('Hello')];
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Conversation(messages: messages, manager: manager),
+            body: Conversation(
+              messages: messages,
+              surfaceController: surfaceController,
+            ),
           ),
         ),
       );
@@ -71,49 +80,52 @@ void main() {
     testWidgets('renders UiResponse correctly', (WidgetTester tester) async {
       const surfaceId = 's1';
       final messages = [
-        AiUiMessage(
-          surfaceId: surfaceId,
-          definition: UiDefinition(surfaceId: surfaceId),
+        ChatMessage.model(
+          '',
+          parts: [
+            UiPart.create(
+              definition: SurfaceDefinition(surfaceId: surfaceId),
+              surfaceId: surfaceId,
+            ),
+          ],
         ),
       ];
       final components = [
         const Component(
           id: 'root',
-          componentProperties: {
-            'Text': {
-              'text': {'literalString': 'UI Content'},
-            },
-          },
+          type: 'Text',
+          properties: {'text': 'UI Content'},
         ),
       ];
-      manager.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      surfaceController.handleMessage(
+        UpdateComponents(surfaceId: surfaceId, components: components),
       );
-      manager.handleMessage(
-        const BeginRendering(surfaceId: surfaceId, root: 'root'),
+      surfaceController.handleMessage(
+        const CreateSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
       );
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Conversation(messages: messages, manager: manager),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byType(GenUiSurface), findsOneWidget);
-      expect(find.text('UI Content'), findsOneWidget);
-    });
-
-    testWidgets('uses custom userPromptBuilder', (WidgetTester tester) async {
-      final messages = [
-        UserMessage(const [TextPart('Hello')]),
-      ];
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Conversation(
               messages: messages,
-              manager: manager,
+              surfaceController: surfaceController,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(Surface), findsOneWidget);
+      expect(find.text('UI Content'), findsOneWidget);
+    });
+
+    testWidgets('uses custom userPromptBuilder', (WidgetTester tester) async {
+      final messages = [ChatMessage.user('Hello')];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Conversation(
+              messages: messages,
+              surfaceController: surfaceController,
               userPromptBuilder: (context, message) =>
                   const Text('Custom User Prompt'),
             ),
@@ -122,6 +134,27 @@ void main() {
       );
       expect(find.text('Custom User Prompt'), findsOneWidget);
       expect(find.text('Hello'), findsNothing);
+    });
+
+    testWidgets('renders user interaction correctly', (
+      WidgetTester tester,
+    ) async {
+      final messages = [
+        ChatMessage.user('', parts: [UiInteractionPart.create('{}')]),
+      ];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Conversation(
+              messages: messages,
+              surfaceController: surfaceController,
+              userUiInteractionBuilder: (context, message) =>
+                  const Text('User Interaction'),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('User Interaction'), findsOneWidget);
     });
   });
 }

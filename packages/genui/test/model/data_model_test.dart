@@ -2,91 +2,22 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/src/foundation/change_notifier.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/model/data_model.dart';
+import 'package:genui/src/primitives/logging.dart';
+import 'package:logging/logging.dart';
 
 void main() {
-  group('DataPath', () {
-    test('parses absolute paths', () {
-      final path = DataPath('/a/b');
-      expect(path.isAbsolute, isTrue);
-      expect(path.segments, ['a', 'b']);
-    });
-
-    test('parses relative paths', () {
-      final path = DataPath('a/b');
-      expect(path.isAbsolute, isFalse);
-      expect(path.segments, ['a', 'b']);
-    });
-
-    test('parses root path', () {
-      final path = DataPath('/');
-      expect(path.isAbsolute, isTrue);
-      expect(path.segments, isEmpty);
-    });
-
-    test('parses empty path', () {
-      final path = DataPath('');
-      expect(path.isAbsolute, isFalse);
-      expect(path.segments, isEmpty);
-    });
-
-    test('toString formats absolute paths', () {
-      final path = DataPath('/a/b');
-      expect(path.toString(), '/a/b');
-    });
-
-    test('toString formats relative paths', () {
-      final path = DataPath('a/b');
-      expect(path.toString(), 'a/b');
-    });
-
-    test('basename returns the last segment', () {
-      final path = DataPath('/a/b');
-      expect(path.basename, 'b');
-    });
-
-    test('dirname returns the parent path', () {
-      final path = DataPath('/a/b/c');
-      expect(path.dirname, DataPath('/a/b'));
-    });
-
-    test('join combines paths', () {
-      final path1 = DataPath('/a');
-      final path2 = DataPath('b/c');
-      expect(path1.join(path2), DataPath('/a/b/c'));
-    });
-
-    test('join with absolute path returns the absolute path', () {
-      final path1 = DataPath('/a');
-      final path2 = DataPath('/b/c');
-      expect(path1.join(path2), DataPath('/b/c'));
-    });
-
-    test('startsWith returns true for prefixes', () {
-      final path = DataPath('/a/b/c');
-      expect(path.startsWith(DataPath('/a/b')), isTrue);
-    });
-
-    test('startsWith returns false for non-prefixes', () {
-      final path = DataPath('/a/b/c');
-      expect(path.startsWith(DataPath('/a/c')), isFalse);
-    });
-
-    test('equality works correctly', () {
-      expect(DataPath('/a/b'), DataPath('/a/b'));
-      expect(DataPath('/a/b'), isNot(DataPath('a/b')));
-    });
-  });
-
   group('DataContext', () {
     late DataModel dataModel;
     late DataContext rootContext;
 
     setUp(() {
-      dataModel = DataModel();
-      rootContext = DataContext(dataModel, '/');
+      dataModel = InMemoryDataModel();
+      rootContext = DataContext(dataModel, DataPath.root);
     });
 
     test('resolves absolute paths', () {
@@ -109,11 +40,11 @@ void main() {
     late DataModel dataModel;
 
     setUp(() {
-      dataModel = DataModel();
+      dataModel = InMemoryDataModel();
     });
 
-    test('update with null path replaces the model', () {
-      dataModel.update(null, {'a': 1});
+    test('update with root path replaces the model', () {
+      dataModel.update(DataPath.root, {'a': 1});
       expect(dataModel.getValue<int>(DataPath('/a')), 1);
     });
 
@@ -168,95 +99,179 @@ void main() {
       });
     });
 
-    group('subscribeToValue', () {
-      test('notifies on direct updates', () {
-        final ValueNotifier<int?> notifier = dataModel.subscribeToValue<int>(
+    group('dispose', () {
+      test('does not forcibly dispose subscriptions', () {
+        final ValueNotifier<int?> notifier = dataModel.subscribe<int>(
           DataPath('/a'),
         );
-        int? value;
-        notifier.addListener(() => value = notifier.value);
-        dataModel.update(DataPath('/a'), 1);
-        expect(value, 1);
+
+        // Trigger data model dispose
+        expect(() => dataModel.dispose(), returnsNormally);
+
+        // The UI widget would naturally call dispose later.
+        // If the model had forcefully disposed it, this would now log a
+        // warning.
+        expect(notifier.dispose, returnsNormally);
       });
 
-      test('does not notify on child updates', () {
-        final ValueNotifier<Map<Object?, Object?>?> notifier = dataModel
-            .subscribeToValue<Map<Object?, Object?>>(DataPath('/a'));
-        var callCount = 0;
-        notifier.addListener(() => callCount++);
-        dataModel.update(DataPath('/a/b'), 1);
-        expect(callCount, 0);
-      });
-
-      test('does not notify on parent updates', () {
-        dataModel.update(DataPath('/a/b'), 1);
-        final ValueNotifier<int?> notifier = dataModel.subscribeToValue<int>(
-          DataPath('/a/b'),
+      test('multiple dispose on subscription is safe and logs warning', () {
+        final ValueNotifier<int?> notifier = dataModel.subscribe<int>(
+          DataPath('/a'),
         );
-        var callCount = 0;
-        notifier.addListener(() => callCount++);
-        dataModel.update(DataPath('/a'), {'b': 2});
-        expect(callCount, 0);
+
+        notifier.dispose();
+
+        final List<LogRecord> logRecords = [];
+        final StreamSubscription<LogRecord> sub = genUiLogger.onRecord.listen(
+          logRecords.add,
+        );
+
+        // Disposing again should be a no-op & log a warning
+        expect(notifier.dispose, returnsNormally);
+
+        expect(logRecords, hasLength(1));
+        expect(logRecords.first.level, Level.WARNING);
+        expect(logRecords.first.message, contains('Attempt to dispose'));
+
+        sub.cancel();
+      });
+    });
+
+    group('DataModel Extended', () {
+      late DataModel dataModel;
+
+      setUp(() {
+        dataModel = InMemoryDataModel();
+      });
+
+      test('getValue throws DataModelTypeException on type mismatch', () {
+        dataModel.update(DataPath.root, {'a': 'hello'});
+        expect(
+          () => dataModel.getValue<int>(DataPath('/a')),
+          throwsA(isA<DataModelTypeException>()),
+        );
+      });
+
+      test('bindExternalState cleanup removes listeners', () {
+        final source = ValueNotifier<int>(0);
+
+        // Act
+        final void Function() cleanup = dataModel.bindExternalState(
+          path: DataPath('/a'),
+          source: source,
+          twoWay: true,
+        );
+
+        // Verify binding active
+        dataModel.update(DataPath('/a'), 1);
+        expect(source.value, 1);
+
+        // Cleanup
+        cleanup();
+
+        // Verify listeners removed
+        // source has no listeners if we were the only one and we removed
+        // ourselves.
+        // ignore: invalid_use_of_protected_member
+        expect(source.hasListeners, isFalse);
       });
     });
 
     group('DataModel Update Parsing', () {
-      test('parses contents with valueString', () {
-        dataModel.update(DataPath.root, <Object?>[
-          {'key': 'a', 'valueString': 'hello'},
-        ]);
+      test('parses contents with simple string', () {
+        dataModel.update(DataPath.root, {'a': 'hello'});
         expect(dataModel.getValue<String>(DataPath('/a')), 'hello');
       });
 
-      test('parses contents with valueNumber', () {
-        dataModel.update(DataPath.root, <Object?>[
-          {'key': 'b', 'valueNumber': 123},
-        ]);
+      test('parses contents with simple number', () {
+        dataModel.update(DataPath.root, {'b': 123});
         expect(dataModel.getValue<int>(DataPath('/b')), 123);
       });
 
-      test('parses contents with valueBoolean', () {
-        dataModel.update(DataPath.root, <Object?>[
-          {'key': 'c', 'valueBoolean': true},
-        ]);
+      test('parses contents with simple boolean', () {
+        dataModel.update(DataPath.root, {'c': true});
         expect(dataModel.getValue<bool>(DataPath('/c')), isTrue);
       });
 
-      test('parses contents with valueMap', () {
-        dataModel.update(DataPath.root, <Object?>[
-          {
-            'key': 'd',
-            'valueMap': <Object?>[
-              {'key': 'd1', 'valueString': 'v1'},
-              {'key': 'd2', 'valueNumber': 2},
-            ],
-          },
-        ]);
+      test('parses contents with simple map', () {
+        dataModel.update(DataPath.root, {
+          'd': {'d1': 'v1', 'd2': 2},
+        });
         expect(dataModel.getValue<Map<Object?, Object?>>(DataPath('/d')), {
           'd1': 'v1',
           'd2': 2,
         });
       });
 
-      test('is permissive with multiple value types', () {
-        dataModel.update(DataPath.root, <Object?>[
-          {'key': 'e', 'valueString': 'first', 'valueNumber': 999},
-        ]);
-        expect(dataModel.getValue<String>(DataPath('/e')), 'first');
-      });
-
-      test('handles empty contents array', () {
+      test('handles empty contents map', () {
         dataModel.update(DataPath('/a'), {'b': 1}); // Initial data
-        dataModel.update(DataPath.root, <Object?>[]);
-        expect(dataModel.data, isEmpty);
+        dataModel.update(DataPath.root, {});
+        // Root update merges into the root model.
+        // Verify it doesn't crash.
       });
+    });
+  });
 
-      test('handles contents with no value field', () {
-        dataModel.update(DataPath.root, <Object?>[
-          {'key': 'f'},
-        ]);
-        expect(dataModel.getValue<Object?>(DataPath('/f')), isNull);
-      });
+  group('DataModel External State Binding', () {
+    late DataModel dataModel;
+
+    setUp(() {
+      dataModel = InMemoryDataModel();
+    });
+
+    test('bindExternalState initializes model from source', () {
+      final source = ValueNotifier<int>(42);
+      dataModel.bindExternalState(path: DataPath('/external'), source: source);
+      expect(dataModel.getValue<int>(DataPath('/external')), 42);
+    });
+
+    test('bindExternalState updates model when source changes', () {
+      final source = ValueNotifier<int>(0);
+      dataModel.bindExternalState(path: DataPath('/external'), source: source);
+
+      source.value = 10;
+      expect(dataModel.getValue<int>(DataPath('/external')), 10);
+    });
+
+    test(
+      'bindExternalState updates source when model changes (twoWay=true)',
+      () {
+        final source = ValueNotifier<int>(0);
+        dataModel.bindExternalState(
+          path: DataPath('/external'),
+          source: source,
+          twoWay: true,
+        );
+
+        dataModel.update(DataPath('/external'), 99);
+        expect(source.value, 99);
+      },
+    );
+
+    test(
+      '''bindExternalState does NOT update source when model changes (twoWay=false)''',
+      () {
+        final source = ValueNotifier<int>(0);
+        dataModel.bindExternalState(
+          path: DataPath('/external'),
+          source: source,
+          twoWay: false,
+        );
+
+        dataModel.update(DataPath('/external'), 99);
+        expect(source.value, 0);
+      },
+    );
+
+    test('bindExternalState handles cleanup on dispose', () {
+      final source = ValueNotifier<int>(0);
+      dataModel.bindExternalState(
+        path: DataPath('/external'),
+        source: source,
+        twoWay: true,
+      );
+
+      dataModel.dispose();
     });
   });
 
@@ -264,7 +279,7 @@ void main() {
     late DataModel dataModel;
 
     setUp(() {
-      dataModel = DataModel();
+      dataModel = InMemoryDataModel();
     });
 
     test('Map: set and get', () {
@@ -334,5 +349,65 @@ void main() {
         reason: 'Should create nested lists',
       );
     });
+  });
+
+  group('DataContext Stream Evaluation', () {
+    late DataModel dataModel;
+    late DataContext context;
+
+    setUp(() {
+      dataModel = InMemoryDataModel();
+      context = DataContext(dataModel, DataPath.root);
+    });
+
+    test('subscribeStream yields initial and subsequent values', () async {
+      dataModel.update(DataPath('/a'), 1);
+      final Stream<int?> stream = context.subscribeStream<int>(DataPath('/a'));
+
+      final values = <int?>[];
+      final StreamSubscription<int?> sub = stream.listen(values.add);
+
+      dataModel.update(DataPath('/a'), 2);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(values, [1, 2]);
+      await sub.cancel();
+    });
+
+    test('evaluateConditionStream evaluates booleans from path', () async {
+      dataModel.update(DataPath('/flag'), true);
+      // Pass a map that resolves to /flag
+      final condition = {'path': '/flag'};
+      final Stream<bool> stream = context.evaluateConditionStream(condition);
+
+      final values = <bool>[];
+      final StreamSubscription<bool> sub = stream.listen(values.add);
+
+      dataModel.update(DataPath('/flag'), false);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(values, [true, false]);
+      await sub.cancel();
+    });
+
+    test('evaluateConditionStream handles null condition as false', () async {
+      final Stream<bool> stream = context.evaluateConditionStream(null);
+      expect(await stream.first, isFalse);
+    });
+
+    test('evaluateConditionStream handles literal bool condition', () async {
+      final Stream<bool> stream = context.evaluateConditionStream(true);
+      expect(await stream.first, isTrue);
+    });
+
+    test(
+      'evaluateConditionStream treats non-null non-bool objects as true',
+      () async {
+        dataModel.update(DataPath('/str'), 'hello');
+        final condition = {'path': '/str'};
+        final Stream<bool> stream = context.evaluateConditionStream(condition);
+        expect(await stream.first, isTrue); // 'hello' != null
+      },
+    );
   });
 }

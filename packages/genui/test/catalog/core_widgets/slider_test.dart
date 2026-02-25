@@ -10,38 +10,38 @@ void main() {
   testWidgets('Slider widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
+    final surfaceController = SurfaceController(
       catalogs: [
-        Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog'),
+        Catalog([BasicCatalogItems.slider], catalogId: 'test_catalog'),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'slider',
-        componentProperties: {
-          'Slider': {
-            'value': {'path': '/myValue'},
-          },
+        id: 'root',
+        type: 'Slider',
+        properties: {
+          'value': {'path': '/myValue'},
         },
       ),
     ];
-    manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+    surfaceController.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'slider',
-        catalogId: 'test_catalog',
-      ),
+    surfaceController.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
-    manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), 0.5);
+    surfaceController
+        .contextFor(surfaceId)
+        .dataModel
+        .update(DataPath('/myValue'), 0.5);
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
         ),
       ),
     );
@@ -51,10 +51,52 @@ void main() {
 
     await tester.drag(find.byType(Slider), const Offset(100, 0));
     expect(
-      manager
-          .dataModelForSurface(surfaceId)
+      surfaceController
+          .contextFor(surfaceId)
+          .dataModel
           .getValue<double>(DataPath('/myValue')),
       greaterThan(0.5),
     );
+  });
+
+  testWidgets('Slider widget renders label', (WidgetTester tester) async {
+    final surfaceController = SurfaceController(
+      catalogs: [
+        Catalog([BasicCatalogItems.slider], catalogId: 'test_catalog'),
+      ],
+    );
+    const surfaceId = 'testSurface';
+    final components = [
+      const Component(
+        id: 'root',
+        type: 'Slider',
+        properties: {
+          'value': {'path': '/myValue'},
+          'label': 'Volume',
+        },
+      ),
+    ];
+    surfaceController.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
+    );
+    surfaceController.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+    );
+    surfaceController
+        .contextFor(surfaceId)
+        .dataModel
+        .update(DataPath('/myValue'), 0.5);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Volume'), findsOneWidget);
   });
 }

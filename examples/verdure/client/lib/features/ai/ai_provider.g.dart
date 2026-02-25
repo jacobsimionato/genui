@@ -120,7 +120,7 @@ final class AiProvider extends $AsyncNotifierProvider<Ai, AiClientState> {
   Ai create() => Ai();
 }
 
-String _$aiHash() => r'c3856857d43497b1869b7c2ebba2189b6ac7c521';
+String _$aiHash() => r'197439febc81783fba9ddf00825e05e418e3c790';
 
 /// The AI provider.
 

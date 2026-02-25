@@ -12,7 +12,7 @@ void main() {
   testWidgets('DateInputChip catalog item builds with literal value', (
     WidgetTester tester,
   ) async {
-    final dataModel = DataModel();
+    final dataModel = InMemoryDataModel();
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -20,17 +20,17 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
-                  data: {
-                    'value': {'literalString': '2025-09-20'},
-                    'label': 'Test Date',
-                  },
+                  getCatalogItem: (type) => null,
+                  data: {'value': '2025-09-20', 'label': 'Test Date'},
                   id: 'test_chip',
+                  type: 'DateInputChip',
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
-                  dataContext: DataContext(dataModel, '/'),
+                  dataContext: DataContext(dataModel, DataPath.root),
                   getComponent: (String componentId) => null,
                   surfaceId: 'surface1',
+                  reportError: (e, s) {},
                 ),
               );
             },
@@ -45,7 +45,7 @@ void main() {
   testWidgets('DateInputChip catalog item builds with data model value', (
     WidgetTester tester,
   ) async {
-    final dataModel = DataModel();
+    final dataModel = InMemoryDataModel();
     dataModel.update(DataPath('/testDate'), '2025-09-20');
 
     await tester.pumpWidget(
@@ -55,17 +55,20 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
+                  getCatalogItem: (type) => null,
                   data: {
                     'value': {'path': '/testDate'},
                     'label': 'Test Date',
                   },
                   id: 'test_chip',
+                  type: 'DateInputChip',
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
-                  dataContext: DataContext(dataModel, '/'),
+                  dataContext: DataContext(dataModel, DataPath.root),
                   getComponent: (String componentId) => null,
                   surfaceId: 'surface1',
+                  reportError: (e, s) {},
                 ),
               );
             },
@@ -85,7 +88,7 @@ void main() {
   testWidgets('DateInputChip updates data model on date selection', (
     WidgetTester tester,
   ) async {
-    final dataModel = DataModel();
+    final dataModel = InMemoryDataModel();
     dataModel.update(DataPath('/testDate'), '2025-09-20');
 
     await tester.pumpWidget(
@@ -95,17 +98,20 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
+                  getCatalogItem: (type) => null,
                   data: {
                     'value': {'path': '/testDate'},
                     'label': 'Test Date',
                   },
                   id: 'test_chip',
+                  type: 'DateInputChip',
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
-                  dataContext: DataContext(dataModel, '/'),
+                  dataContext: DataContext(dataModel, DataPath.root),
                   getComponent: (String componentId) => null,
                   surfaceId: 'surface1',
+                  reportError: (e, s) {},
                 ),
               );
             },
@@ -127,7 +133,7 @@ void main() {
   testWidgets('DateInputChip selects date when no initial value', (
     WidgetTester tester,
   ) async {
-    final dataModel = DataModel();
+    final dataModel = InMemoryDataModel();
 
     await tester.pumpWidget(
       MaterialApp(
@@ -136,17 +142,20 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
+                  getCatalogItem: (type) => null,
                   data: {
                     'value': {'path': '/testDate'},
                     'label': 'Test Date',
                   },
                   id: 'test_chip',
+                  type: 'DateInputChip',
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
-                  dataContext: DataContext(dataModel, '/'),
+                  dataContext: DataContext(dataModel, DataPath.root),
                   getComponent: (String componentId) => null,
                   surfaceId: 'surface1',
+                  reportError: (e, s) {},
                 ),
               );
             },
@@ -179,4 +188,52 @@ void main() {
       findsOneWidget,
     );
   });
+  testWidgets(
+    'DateInputChip updates implicit data model path on date selection when '
+    'initialized with literal',
+    (WidgetTester tester) async {
+      final dataModel = InMemoryDataModel();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return dateInputChip.widgetBuilder(
+                  CatalogItemContext(
+                    getCatalogItem: (type) => null,
+                    data: {'value': '2025-09-20', 'label': 'Test Date'},
+                    id: 'test_chip_implicit',
+                    type: 'DateInputChip',
+                    buildChild: (data, [_]) => const SizedBox(),
+                    dispatchEvent: (event) {},
+                    buildContext: context,
+                    dataContext: DataContext(dataModel, DataPath.root),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                    reportError: (e, s) {},
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Test Date: Sep 20, 2025'), findsOneWidget);
+
+      await tester.tap(find.byType(FilterChip));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('10'));
+      await tester.pumpAndSettle();
+
+      // Verify update to implicit path: test_chip_implicit.value
+      expect(
+        dataModel.getValue<String>(DataPath('test_chip_implicit.value')),
+        '2025-09-10',
+      );
+      expect(find.text('Test Date: Sep 10, 2025'), findsOneWidget);
+    },
+  );
 }

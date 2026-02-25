@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
   properties: {
+    'component': S.string(enumValues: ['TabbedSections']),
     'sections': S.list(
       description: 'A list of sections to display as tabs.',
       items: S.object(
@@ -23,7 +24,7 @@ final _schema = S.object(
       ),
     ),
   },
-  required: ['sections'],
+  required: ['component', 'sections'],
 );
 
 extension type _TabbedSectionsData.fromMap(Map<String, Object?> _json) {
@@ -36,12 +37,10 @@ extension type _TabbedSectionsData.fromMap(Map<String, Object?> _json) {
 }
 
 extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
-  factory _TabSectionItemData({
-    required Map<String, Object?> title,
-    required String child,
-  }) => _TabSectionItemData.fromMap({'child': child, 'title': title});
+  factory _TabSectionItemData({required Object title, required String child}) =>
+      _TabSectionItemData.fromMap({'child': child, 'title': title});
 
-  Map<String, Object?> get title => _json['title'] as Map<String, Object?>;
+  Object get title => _json['title'] as Object;
   String get childId => _json['child'] as String;
 }
 
@@ -60,44 +59,27 @@ final tabbedSections = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "TabbedSections": {
-              "sections": [
-                {
-                  "title": {
-                    "literalString": "Tab 1"
-                  },
-                  "child": "tab1_content"
-                },
-                {
-                  "title": {
-                    "literalString": "Tab 2"
-                  },
-                  "child": "tab2_content"
-                }
-              ]
+          "component": "TabbedSections",
+          "sections": [
+            {
+              "title": "Tab 1",
+              "child": "tab1_content"
+            },
+            {
+              "title": "Tab 2",
+              "child": "tab2_content"
             }
-          }
+          ]
         },
         {
           "id": "tab1_content",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "This is the content of Tab 1."
-              }
-            }
-          }
+          "component": "Text",
+          "text": "This is the content of Tab 1."
         },
         {
           "id": "tab2_content",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "This is the content of Tab 2."
-              }
-            }
-          }
+          "component": "Text",
+          "text": "This is the content of Tab 2."
         }
       ]
     ''',
@@ -109,30 +91,34 @@ final tabbedSections = CatalogItem(
     final List<_TabSectionData> sections = tabbedSectionsData.sections.map((
       section,
     ) {
-      final ValueNotifier<String?> titleNotifier = context.dataContext
-          .subscribeToString(section.title);
-      return _TabSectionData(
-        titleNotifier: titleNotifier,
-        childId: section.childId,
-      );
+      return _TabSectionData(title: section.title, childId: section.childId);
     }).toList();
 
-    return _TabbedSections(sections: sections, buildChild: context.buildChild);
+    return _TabbedSections(
+      sections: sections,
+      buildChild: context.buildChild,
+      dataContext: context.dataContext,
+    );
   },
 );
 
 class _TabSectionData {
-  final ValueNotifier<String?> titleNotifier;
+  final Object title;
   final String childId;
 
-  _TabSectionData({required this.titleNotifier, required this.childId});
+  _TabSectionData({required this.title, required this.childId});
 }
 
 class _TabbedSections extends StatefulWidget {
-  const _TabbedSections({required this.sections, required this.buildChild});
+  const _TabbedSections({
+    required this.sections,
+    required this.buildChild,
+    required this.dataContext,
+  });
 
   final List<_TabSectionData> sections;
   final Widget Function(String id) buildChild;
+  final DataContext dataContext;
 
   @override
   State<_TabbedSections> createState() => _TabbedSectionsState();
@@ -168,9 +154,10 @@ class _TabbedSectionsState extends State<_TabbedSections>
           controller: _tabController,
           tabs: widget.sections.map((section) {
             return Tab(
-              child: ValueListenableBuilder<String?>(
-                valueListenable: section.titleNotifier,
-                builder: (context, title, child) {
+              child: BoundString(
+                dataContext: widget.dataContext,
+                value: section.title,
+                builder: (context, title) {
                   return Text(title ?? '');
                 },
               ),

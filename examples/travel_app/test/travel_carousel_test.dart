@@ -17,14 +17,18 @@ void main() {
         final Map<String, List<Map<String, Object>>> data = {
           'items': [
             {
-              'description': {'literalString': 'Item 1'},
+              'description': 'Item 1',
               'imageChildId': 'imageId1',
-              'action': {'name': 'selectItem'},
+              'action': {
+                'event': {'name': 'selectItem'},
+              },
             },
             {
-              'description': {'literalString': 'Item 2'},
+              'description': 'Item 2',
               'imageChildId': 'imageId2',
-              'action': {'name': 'selectItem'},
+              'action': {
+                'event': {'name': 'selectItem'},
+              },
             },
           ],
         };
@@ -41,16 +45,22 @@ void main() {
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
                     CatalogItemContext(
+                      getCatalogItem: (type) => null,
                       data: data,
                       id: 'testId',
+                      type: 'TravelCarousel',
                       buildChild: buildChild,
                       dispatchEvent: (event) {
                         dispatchedEvent = event;
                       },
                       buildContext: context,
-                      dataContext: DataContext(DataModel(), '/'),
+                      dataContext: DataContext(
+                        InMemoryDataModel(),
+                        DataPath.root,
+                      ),
                       getComponent: (String componentId) => null,
                       surfaceId: 'surface1',
+                      reportError: (e, s) {},
                     ),
                   );
                 },
@@ -81,15 +91,19 @@ void main() {
         final Map<String, List<Map<String, Object>>> data = {
           'items': [
             {
-              'description': {'literalString': 'Item 1'},
+              'description': 'Item 1',
               'imageChildId': 'imageId1',
               'listingSelectionId': 'listing1',
-              'action': {'name': 'selectItem'},
+              'action': {
+                'event': {'name': 'selectItem'},
+              },
             },
             {
-              'description': {'literalString': 'Item 2'},
+              'description': 'Item 2',
               'imageChildId': 'imageId2',
-              'action': {'name': 'selectItem'},
+              'action': {
+                'event': {'name': 'selectItem'},
+              },
             },
           ],
         };
@@ -106,16 +120,22 @@ void main() {
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
                     CatalogItemContext(
+                      getCatalogItem: (type) => null,
                       data: data,
                       id: 'testId',
+                      type: 'TravelCarousel',
                       buildChild: buildChild,
                       dispatchEvent: (event) {
                         dispatchedEvent = event;
                       },
                       buildContext: context,
-                      dataContext: DataContext(DataModel(), '/'),
+                      dataContext: DataContext(
+                        InMemoryDataModel(),
+                        DataPath.root,
+                      ),
                       getComponent: (String componentId) => null,
                       surfaceId: 'surface1',
+                      reportError: (e, s) {},
                     ),
                   );
                 },
@@ -146,14 +166,20 @@ void main() {
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
                     CatalogItemContext(
+                      getCatalogItem: (type) => null,
                       data: data,
                       id: 'testId',
+                      type: 'TravelCarousel',
                       buildChild: (data, [_]) => Text(data),
                       dispatchEvent: (event) {},
                       buildContext: context,
-                      dataContext: DataContext(DataModel(), '/'),
+                      dataContext: DataContext(
+                        InMemoryDataModel(),
+                        DataPath.root,
+                      ),
                       getComponent: (String componentId) => null,
                       surfaceId: 'surface1',
+                      reportError: (e, s) {},
                     ),
                   );
                 },

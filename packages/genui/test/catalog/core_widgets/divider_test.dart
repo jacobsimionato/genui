@@ -8,33 +8,28 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Divider widget renders', (WidgetTester tester) async {
-    final manager = A2uiMessageProcessor(
+    final surfaceController = SurfaceController(
       catalogs: [
-        Catalog([CoreCatalogItems.divider], catalogId: 'test_catalog'),
+        Catalog([BasicCatalogItems.divider], catalogId: 'test_catalog'),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
-      const Component(
-        id: 'divider',
-        componentProperties: {'Divider': <String, Object?>{}},
-      ),
+      const Component(id: 'root', type: 'Divider', properties: {}),
     ];
-    manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+    surfaceController.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'divider',
-        catalogId: 'test_catalog',
-      ),
+    surfaceController.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
         ),
       ),
     );

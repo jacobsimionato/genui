@@ -10,6 +10,7 @@ import '../utils.dart';
 
 final _schema = S.object(
   properties: {
+    'component': S.string(enumValues: ['InformationCard']),
     'imageChildId': S.string(
       description:
           'The ID of the Image widget to display at the top of the '
@@ -24,7 +25,7 @@ final _schema = S.object(
       description: 'The body text of the card. This supports markdown.',
     ),
   },
-  required: ['title', 'body'],
+  required: ['component', 'title', 'body'],
 );
 
 extension type _InformationCardData.fromMap(Map<String, Object?> _json) {
@@ -41,9 +42,9 @@ extension type _InformationCardData.fromMap(Map<String, Object?> _json) {
   });
 
   String? get imageChildId => _json['imageChildId'] as String?;
-  JsonMap get title => _json['title'] as JsonMap;
-  JsonMap? get subtitle => _json['subtitle'] as JsonMap?;
-  JsonMap get body => _json['body'] as JsonMap;
+  Object get title => _json['title'] as Object;
+  Object? get subtitle => _json['subtitle'];
+  Object get body => _json['body'] as Object;
 }
 
 final informationCard = CatalogItem(
@@ -54,30 +55,16 @@ final informationCard = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "InformationCard": {
-              "title": {
-                "literalString": "Beautiful Scenery"
-              },
-              "subtitle": {
-                "literalString": "A stunning view"
-              },
-              "body": {
-                "literalString": "This is a beautiful place to visit in the summer."
-              },
-              "imageChildId": "image1"
-            }
-          }
+          "component": "InformationCard",
+          "title": "Beautiful Scenery",
+          "subtitle": "A stunning view",
+          "body": "This is a beautiful place to visit in the summer.",
+          "imageChildId": "image1"
         },
         {
           "id": "image1",
-          "component": {
-            "Image": {
-              "url": {
-                "literalString": "assets/travel_images/canyonlands_national_park_utah.jpg"
-              }
-            }
-          }
+          "component": "Image",
+          "url": "assets/travel_images/canyonlands_national_park_utah.jpg"
         }
       ]
     ''',
@@ -90,18 +77,12 @@ final informationCard = CatalogItem(
         ? context.buildChild(cardData.imageChildId!)
         : null;
 
-    final ValueNotifier<String?> titleNotifier = context.dataContext
-        .subscribeToString(cardData.title);
-    final ValueNotifier<String?> subtitleNotifier = context.dataContext
-        .subscribeToString(cardData.subtitle);
-    final ValueNotifier<String?> bodyNotifier = context.dataContext
-        .subscribeToString(cardData.body);
-
     return _InformationCard(
       imageChild: imageChild,
-      titleNotifier: titleNotifier,
-      subtitleNotifier: subtitleNotifier,
-      bodyNotifier: bodyNotifier,
+      title: cardData.title,
+      subtitle: cardData.subtitle,
+      body: cardData.body,
+      dataContext: context.dataContext,
     );
   },
 );
@@ -109,15 +90,17 @@ final informationCard = CatalogItem(
 class _InformationCard extends StatelessWidget {
   const _InformationCard({
     this.imageChild,
-    required this.titleNotifier,
-    required this.subtitleNotifier,
-    required this.bodyNotifier,
+    required this.title,
+    required this.subtitle,
+    required this.body,
+    required this.dataContext,
   });
 
   final Widget? imageChild;
-  final ValueNotifier<String?> titleNotifier;
-  final ValueNotifier<String?> subtitleNotifier;
-  final ValueNotifier<String?> bodyNotifier;
+  final Object title;
+  final Object? subtitle;
+  final Object body;
+  final DataContext dataContext;
 
   @override
   Widget build(BuildContext context) {
@@ -135,27 +118,31 @@ class _InformationCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ValueListenableBuilder<String?>(
-                    valueListenable: titleNotifier,
-                    builder: (context, title, _) => Text(
+                  BoundString(
+                    dataContext: dataContext,
+                    value: title,
+                    builder: (context, title) => Text(
                       title ?? '',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                   ),
-                  ValueListenableBuilder<String?>(
-                    valueListenable: subtitleNotifier,
-                    builder: (context, subtitle, _) {
-                      if (subtitle == null) return const SizedBox.shrink();
-                      return Text(
-                        subtitle,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      );
-                    },
-                  ),
+                  if (subtitle != null)
+                    BoundString(
+                      dataContext: dataContext,
+                      value: subtitle!,
+                      builder: (context, subtitle) {
+                        if (subtitle == null) return const SizedBox.shrink();
+                        return Text(
+                          subtitle,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        );
+                      },
+                    ),
                   const SizedBox(height: 8.0),
-                  ValueListenableBuilder<String?>(
-                    valueListenable: bodyNotifier,
-                    builder: (context, body, _) =>
+                  BoundString(
+                    dataContext: dataContext,
+                    value: body,
+                    builder: (context, body) =>
                         MarkdownWidget(text: body ?? ''),
                   ),
                 ],

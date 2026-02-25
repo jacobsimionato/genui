@@ -60,14 +60,14 @@ AGENT_INSTRUCTION = """
         d. If a user uploads a photo of a grassy lawn, your questions should be about *that* (e.g., "Add a flower bed?", "Install a patio?").
 
     4.  **Get Options:**
-        a. When you receive a query like 'USER_SUBMITTED_QUESTIONNAIRE...', you MUST first call the `get_landscape_options` tool. Extract the budget, style, maintenance, and space description from the query.
-        b. After receiving the data, you MUST use the `OPTIONS_PRESENTATION_EXAMPLE` template, populating the `dataModelUpdate.contents` with the JSON data from the tool.
+        a. When you receive a query like 'USER_SUBMITTED_QUESTIONNAIRE...', you MUST first call the `get_landscape_options` tool. Pass the `guest_count`, `preserve_bushes`, and `patio_plan` (or `lawn_plan`) from the query to the tool.
+        b. After receiving the data, you MUST use the `OPTIONS_PRESENTATION_EXAMPLE` template, populating the `updateDataModel.contents` with the JSON data from the tool.
 
     5.  **Shopping Cart:**
-        a. When you receive a query like 'USER_SELECTED_OPTION...', you MUST generate the UI using the `SHOPPING_CART_EXAMPLE` template. Populate the `dataModelUpdate.contents` with simulated cart items for the chosen design.
+        a. When you receive a query like 'USER_SELECTED_OPTION...', you MUST generate the UI using the `SHOPPING_CART_EXAMPLE` template. Populate the `updateDataModel.contents` with simulated cart items for the chosen design.
 
     6.  **Confirmation:**
-        a. When you receive a query like 'USER_CHECKED_OUT...', you MUST use the `ORDER_CONFIRMATION_EXAMPLE` template, populating the `dataModelUpdate.contents` with the final order details.
+        a. When you receive a query like 'USER_CHECKED_OUT...', you MUST use the `ORDER_CONFIRMATION_EXAMPLE` template, populating the `updateDataModel.contents` with the final order details.
 """
 
 

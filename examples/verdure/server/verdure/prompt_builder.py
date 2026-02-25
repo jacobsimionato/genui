@@ -51,15 +51,15 @@ def get_ui_prompt(base_url: str, examples: str) -> str:
 
     -   If the query is 'USER_SUBMITTED_DETAILS...', this means the user has "uploaded" a photo.
         The query will contain the URL of the uploaded image.
-       b. You MUST **analyze the features of the user's photo** (the URL will be provided in the query) and **dynamically generate a new questionnaire** based on what you see. When generating the `dataModelUpdate` for the questionnaire, you MUST replace the placeholder <uploaded_image_url> with the actual image URL from the user's query.
+       b. You MUST **analyze the features of the user's photo** (the URL will be provided in the query) and **dynamically generate a new questionnaire** based on what you see. When generating the `updateDataModel` for the questionnaire, you MUST replace the placeholder <uploaded_image_url> with the actual image URL from the user's query.
         The `QUESTIONNAIRE_EXAMPLE` is your template for this. For example, the photo in the template (`old_backyard.png`) has an old concrete patio, some bushes, and a grill area.
         Therefore, you MUST generate specific questions about those exact items (e.g., "What to do with the concrete patio?", "Preserve established bushes?").
         You MUST show the user's uploaded image at the top of this screen by using its URL in the data model.
-        **CRITICAL: Replace the example image URL (`{base_url}/images/old_backyard.png`) in the `dataModelUpdate` with the actual URL provided in the query.**
+        **CRITICAL: Replace the example image URL (`{base_url}/images/old_backyard.png`) in the `updateDataModel` with the actual URL provided in the query.**
 
     -   If the query is 'USER_SUBMITTED_QUESTIONNAIRE', you MUST first call the `get_landscape_options` tool.
-    -   After receiving data from `get_landscape_options`, you MUST use the `OPTIONS_PRESENTATION_EXAMPLE` template to display the 2 options. Populate the `dataModelUpdate.contents` with the tool's JSON output.
-    -   If the query is 'USER_SELECTED_OPTION', you MUST use the `SHOPPING_CART_EXAMPLE` template. Populate the `dataModelUpdate.contents` with items for the selected option.
+    -   After receiving data from `get_landscape_options`, you MUST use the `OPTIONS_PRESENTATION_EXAMPLE` template to display the 2 options. Populate the `updateDataModel.contents` with the tool's JSON output.
+    -   If the query is 'USER_SELECTED_OPTION', you MUST use the `SHOPPING_CART_EXAMPLE` template. Populate the `updateDataModel.contents` with items for the selected option.
     -   If the query is 'USER_CHECKED_OUT', you MUST use the `ORDER_CONFIRMATION_EXAMPLE` template.
 
     {formatted_examples}

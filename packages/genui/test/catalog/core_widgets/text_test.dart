@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui/src/catalog/core_widgets/text.dart';
+import 'package:genui/src/catalog/basic_catalog_widgets/text.dart';
 import 'package:genui/src/model/catalog_item.dart';
 import 'package:genui/src/model/data_model.dart';
 import 'package:genui/src/model/ui_models.dart';
@@ -20,16 +20,17 @@ void main() {
           builder: (context) => Scaffold(
             body: text.widgetBuilder(
               CatalogItemContext(
-                data: {
-                  'text': {'literalString': 'Hello World'},
-                },
+                data: {'text': 'Hello World'},
                 id: 'test_text',
+                type: 'Text',
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
-                dataContext: DataContext(DataModel(), '/'),
+                dataContext: DataContext(InMemoryDataModel(), DataPath.root),
                 getComponent: (String componentId) => null,
+                getCatalogItem: (String type) => null,
                 surfaceId: 'surface1',
+                reportError: (e, s) {},
               ),
             ),
           ),
@@ -49,17 +50,17 @@ void main() {
           builder: (context) => Scaffold(
             body: text.widgetBuilder(
               CatalogItemContext(
-                data: {
-                  'text': {'literalString': 'Heading 1'},
-                  'usageHint': 'h1',
-                },
+                data: {'text': 'Heading 1', 'variant': 'h1'},
                 id: 'test_text_h1',
+                type: 'Text',
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
-                dataContext: DataContext(DataModel(), '/'),
+                dataContext: DataContext(InMemoryDataModel(), DataPath.root),
                 getComponent: (String componentId) => null,
+                getCatalogItem: (String type) => null,
                 surfaceId: 'surface1',
+                reportError: (e, s) {},
               ),
             ),
           ),
@@ -103,16 +104,17 @@ void main() {
           builder: (context) => Scaffold(
             body: text.widgetBuilder(
               CatalogItemContext(
-                data: {
-                  'text': {'literalString': 'Hello **Bold**'},
-                },
+                data: {'text': 'Hello **Bold**'},
                 id: 'test_text_markdown',
+                type: 'Text',
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
-                dataContext: DataContext(DataModel(), '/'),
+                dataContext: DataContext(InMemoryDataModel(), DataPath.root),
                 getComponent: (String componentId) => null,
+                getCatalogItem: (String type) => null,
                 surfaceId: 'surface1',
+                reportError: (e, s) {},
               ),
             ),
           ),
@@ -145,16 +147,17 @@ void main() {
               style: const TextStyle(color: requiredColor),
               child: text.widgetBuilder(
                 CatalogItemContext(
-                  data: {
-                    'text': {'literalString': 'Contrast Text'},
-                  },
+                  data: {'text': 'Contrast Text'},
                   id: 'test_contrast',
+                  type: 'Text',
                   buildChild: (_, [_]) => const SizedBox(),
                   dispatchEvent: (UiEvent event) {},
                   buildContext: context,
-                  dataContext: DataContext(DataModel(), '/'),
+                  dataContext: DataContext(InMemoryDataModel(), DataPath.root),
                   getComponent: (String componentId) => null,
+                  getCatalogItem: (String type) => null,
                   surfaceId: 'surface1',
+                  reportError: (e, s) {},
                 ),
               ),
             ),
@@ -176,4 +179,38 @@ void main() {
     );
     expect(richText.text.style?.color, requiredColor);
   });
+
+  testWidgets(
+    'Text widget does NOT evaluate expressions implicitly (renders literal)',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: text.widgetBuilder(
+                CatalogItemContext(
+                  data: {'text': '\${foo}'},
+                  id: 'test_text_literal_expression',
+                  type: 'Text',
+                  buildChild: (_, [_]) => const SizedBox(),
+                  dispatchEvent: (UiEvent event) {},
+                  buildContext: context,
+                  dataContext: DataContext(InMemoryDataModel(), DataPath.root)
+                    ..update(DataPath('foo'), 'bar'),
+                  getComponent: (String componentId) => null,
+                  getCatalogItem: (String type) => null,
+                  surfaceId: 'surface1',
+                  reportError: (e, s) {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // Should render "${foo}" literally, NOT "bar".
+      expect(find.text('\${foo}'), findsOneWidget);
+      expect(find.text('bar'), findsNothing);
+    },
+  );
 }

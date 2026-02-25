@@ -18,6 +18,7 @@ final _schema = S.object(
       'A chip used to choose from a set of options where *more than one* '
       'option can be chosen. This *must* be placed inside an InputGroup.',
   properties: {
+    'component': S.string(enumValues: ['CheckboxFilterChipsInput']),
     'chipLabel': S.string(
       description:
           'The title of the filter chip e.g. "amenities" or "dietary '
@@ -37,7 +38,7 @@ final _schema = S.object(
           'initially. These options must exist in the "options" list.',
     ),
   },
-  required: ['chipLabel', 'options', 'selectedOptions'],
+  required: ['component', 'chipLabel', 'options', 'selectedOptions'],
 );
 
 extension type _CheckboxFilterChipsInputData.fromMap(
@@ -58,7 +59,7 @@ extension type _CheckboxFilterChipsInputData.fromMap(
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();
   String? get iconName => _json['iconName'] as String?;
-  JsonMap get selectedOptions => _json['selectedOptions'] as JsonMap;
+  Object get selectedOptions => _json['selectedOptions'] as Object;
 }
 
 /// An interactive chip that allows the user to select multiple options from a
@@ -80,23 +81,18 @@ final checkboxFilterChipsInput = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "CheckboxFilterChipsInput": {
-              "chipLabel": "Amenities",
-              "options": [
-                "Wifi",
-                "Gym",
-                "Pool",
-                "Parking"
-              ],
-              "selectedOptions": {
-                "literalArray": [
-                  "Wifi",
-                  "Gym"
-                ]
-              }
-            }
-          }
+          "component": "CheckboxFilterChipsInput",
+          "chipLabel": "Amenities",
+          "options": [
+            "Wifi",
+            "Gym",
+            "Pool",
+            "Parking"
+          ],
+          "selectedOptions": [
+            "Wifi",
+            "Gym"
+          ]
         }
       ]
     ''',
@@ -121,14 +117,24 @@ final checkboxFilterChipsInput = CatalogItem(
       }
     }
 
-    final JsonMap selectedOptionsRef = checkboxFilterChipsData.selectedOptions;
-    final ValueNotifier<List<Object?>?> notifier = context.dataContext
-        .subscribeToObjectArray(selectedOptionsRef);
+    final Object selectedOptionsRef = checkboxFilterChipsData.selectedOptions;
+    final path =
+        (selectedOptionsRef is Map && selectedOptionsRef.containsKey('path'))
+        ? selectedOptionsRef['path'] as String
+        : '${context.id}.value';
 
-    return ValueListenableBuilder<List<Object?>?>(
-      valueListenable: notifier,
-      builder: (buildContext, currentSelectedValues, child) {
-        final Set<String> selectedOptionsSet = (currentSelectedValues ?? [])
+    return BoundList(
+      dataContext: context.dataContext,
+      value: {'path': path},
+      builder: (buildContext, currentSelectedValues) {
+        var effectiveSelections = currentSelectedValues;
+        if (effectiveSelections == null) {
+          if (selectedOptionsRef is List) {
+            effectiveSelections = selectedOptionsRef;
+          }
+        }
+
+        final Set<String> selectedOptionsSet = (effectiveSelections ?? [])
             .cast<String>()
             .toSet();
         return _CheckboxFilterChip(
@@ -137,13 +143,10 @@ final checkboxFilterChipsInput = CatalogItem(
           icon: icon,
           selectedOptions: selectedOptionsSet,
           onChanged: (newSelectedOptions) {
-            final path = selectedOptionsRef['path'] as String?;
-            if (path != null) {
-              context.dataContext.update(
-                DataPath(path),
-                newSelectedOptions.toList(),
-              );
-            }
+            context.dataContext.update(
+              DataPath(path),
+              newSelectedOptions.toList(),
+            );
           },
         );
       },

@@ -13,11 +13,10 @@ void main() {
       WidgetTester tester,
     ) async {
       final Map<String, Object> data = {
-        'topics': [
-          {'literalString': 'Topic A'},
-          {'literalString': 'Topic B'},
-        ],
-        'action': {'name': 'selectTopic'},
+        'topics': ['Topic A', 'Topic B'],
+        'action': {
+          'event': {'name': 'selectTopic'},
+        },
       };
       UiEvent? dispatchedEvent;
 
@@ -28,16 +27,22 @@ void main() {
               builder: (context) {
                 return trailhead.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: data,
                     id: 'testId',
+                    type: 'Trailhead',
                     buildChild: (_, [_]) => const SizedBox.shrink(),
                     dispatchEvent: (event) {
                       dispatchedEvent = event;
                     },
                     buildContext: context,
-                    dataContext: DataContext(DataModel(), '/'),
+                    dataContext: DataContext(
+                      InMemoryDataModel(),
+                      DataPath.root,
+                    ),
                     getComponent: (String componentId) => null,
                     surfaceId: 'surface1',
+                    reportError: (e, s) {},
                   ),
                 );
               },
@@ -64,7 +69,9 @@ void main() {
     ) async {
       final Map<String, Object> data = {
         'topics': <Map<String, String>>[],
-        'action': {'name': 'selectTopic'},
+        'action': {
+          'event': {'name': 'selectTopic'},
+        },
       };
 
       await tester.pumpWidget(
@@ -74,14 +81,20 @@ void main() {
               builder: (context) {
                 return trailhead.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: data,
                     id: 'testId',
+                    type: 'Trailhead',
                     buildChild: (_, [_]) => const SizedBox.shrink(),
                     dispatchEvent: (event) {},
                     buildContext: context,
-                    dataContext: DataContext(DataModel(), '/'),
+                    dataContext: DataContext(
+                      InMemoryDataModel(),
+                      DataPath.root,
+                    ),
                     getComponent: (String componentId) => null,
                     surfaceId: 'surface1',
+                    reportError: (e, s) {},
                   ),
                 );
               },

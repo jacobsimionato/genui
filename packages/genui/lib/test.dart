@@ -2,5 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-export 'test/fake_content_generator.dart';
+/// Testing utilities and validation rules for the GenUI framework.
+library;
+
 export 'test/validation.dart';

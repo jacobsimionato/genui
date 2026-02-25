@@ -8,63 +8,99 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('List widget renders children', (WidgetTester tester) async {
-    final manager = A2uiMessageProcessor(
+    final surfaceController = SurfaceController(
       catalogs: [
         Catalog([
-          CoreCatalogItems.list,
-          CoreCatalogItems.text,
+          BasicCatalogItems.list,
+          BasicCatalogItems.text,
         ], catalogId: 'test_catalog'),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'list',
-        componentProperties: {
-          'List': {
-            'children': {
-              'explicitList': ['text1', 'text2'],
-            },
-          },
+        id: 'root',
+        type: 'List',
+        properties: {
+          'children': ['text1', 'text2'],
         },
       ),
-      const Component(
-        id: 'text1',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'First'},
-          },
-        },
-      ),
+      const Component(id: 'text1', type: 'Text', properties: {'text': 'First'}),
       const Component(
         id: 'text2',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Second'},
-          },
-        },
+        type: 'Text',
+        properties: {'text': 'Second'},
       ),
     ];
-    manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+    surfaceController.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'list',
-        catalogId: 'test_catalog',
-      ),
+    surfaceController.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
         ),
       ),
     );
 
-    expect(find.text('First'), findsOneWidget);
     expect(find.text('Second'), findsOneWidget);
+  });
+
+  testWidgets('List widget respects align property', (
+    WidgetTester tester,
+  ) async {
+    final surfaceController = SurfaceController(
+      catalogs: [
+        Catalog([
+          BasicCatalogItems.list,
+          BasicCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
+    );
+    const surfaceId = 'testSurface';
+    final components = [
+      const Component(
+        id: 'root',
+        type: 'List',
+        properties: {
+          'align': 'center',
+          'children': ['text1'],
+        },
+      ),
+      const Component(
+        id: 'text1',
+        type: 'Text',
+        properties: {'text': 'Center'},
+      ),
+    ];
+    surfaceController.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
+    );
+    surfaceController.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Center'), findsOneWidget);
+    // Verify alignment logic by finding the Flex widget wrapping the child.
+    final Flex flexWidget = tester.widget<Flex>(
+      find.ancestor(of: find.text('Center'), matching: find.byType(Flex)).first,
+    );
+    expect(flexWidget.crossAxisAlignment, CrossAxisAlignment.center);
   });
 }
