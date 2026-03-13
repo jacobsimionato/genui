@@ -12,9 +12,13 @@ const geminiApiKeyName = 'GEMINI_API_KEY';
 const String geminiApiKey = String.fromEnvironment(geminiApiKeyName);
 
 String apiKeyForEval() {
-  String apiKey = geminiApiKey.isEmpty
-      ? Platform.environment[geminiApiKeyName] ?? ''
-      : geminiApiKey;
-  if (apiKey.isEmpty) throw Exception('$geminiApiKeyName is not configured.');
+  var apiKey = geminiApiKey;
+  if (apiKey.isEmpty) {
+    apiKey = Platform.environment[geminiApiKeyName] ?? '';
+  }
+
+  if (apiKey.isEmpty) {
+    throw Exception('$geminiApiKeyName is not configured.');
+  }
   return apiKey;
 }
