@@ -65,7 +65,8 @@ class A2uiTransportAdapter implements Transport {
   Stream<String> get incomingText => _pipeline
       .where((e) => e is TextEvent)
       .cast<TextEvent>()
-      .map((e) => e.text);
+      .map((e) => e.text.trim())
+      .where((text) => text.isNotEmpty);
 
   /// A stream of A2UI messages parsed from the input.
   @override
@@ -79,6 +80,11 @@ class A2uiTransportAdapter implements Transport {
       );
     }
     await onSend!(message);
+  }
+
+  Future<void> flush() async {
+    await _inputStream.close();
+    await _pipelineSubscription?.asFuture<void>();
   }
 
   /// Closes the controller and cleans up resources.
