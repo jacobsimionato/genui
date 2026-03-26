@@ -396,14 +396,33 @@ class _ChangeNotifier implements Listenable {
 ///
 /// Because of this behavior, [ValueNotifier] is best used with immutable data
 /// types.
-interface class ValueNotifier<T> implements ValueListenable<T> {
+class ValueNotifier<T> implements ValueListenable<T> {
   final _ChangeNotifier _changeNotifier = _ChangeNotifier();
 
   /// Creates a [_ChangeNotifier] that wraps this value.
   ValueNotifier(this._value) {
-    if (kTrackMemoryLeaks) {
-      debugMaybeDispatchCreated(runtimeType.toString(), this);
-    }
+    assert(() {
+      if (kTrackMemoryLeaks) {
+        debugMaybeDispatchCreated(runtimeType.toString(), this);
+      }
+      return true;
+    }());
+  }
+
+  bool _debugDisposed = false;
+
+  static bool debugAssertNotDisposed<T>(ValueNotifier<T> notifier) {
+    assert(() {
+      if (notifier._debugDisposed) {
+        throw UiError(
+          'A ${notifier.runtimeType} was used after being disposed.\n'
+          'Once you have called dispose() on a ${notifier.runtimeType}, it '
+          'can no longer be used.',
+        );
+      }
+      return true;
+    }());
+    return true;
   }
 
   /// The current value stored in this notifier.
@@ -426,9 +445,12 @@ interface class ValueNotifier<T> implements ValueListenable<T> {
   String toString() => '${describeIdentity(this)}($value)';
 
   void dispose() {
-    if (kTrackMemoryLeaks) {
-      debugMaybeDispatchDisposed(this);
-    }
+    assert(() {
+      _debugDisposed = true;
+      if (kTrackMemoryLeaks) debugMaybeDispatchDisposed(this);
+      return true;
+    }());
+
     _changeNotifier.dispose();
   }
 
@@ -439,4 +461,10 @@ interface class ValueNotifier<T> implements ValueListenable<T> {
   @override
   void removeListener(VoidCallback listener) =>
       _changeNotifier.removeListener(listener);
+
+  @protected
+  bool get hasListeners => _changeNotifier.hasListeners;
+
+  @protected
+  void notifyListeners() => _changeNotifier.notifyListeners();
 }
