@@ -8,11 +8,10 @@ library;
 
 import 'package:meta/meta.dart';
 
-import '../primitives/basics.dart';
-import '../primitives/private_leak_tracking.dart';
-import 'assertions.dart';
-import 'diagnostics.dart';
+import 'error_reporter.dart';
 import 'listenable.dart';
+import 'primitives.dart';
+import 'private_leak_tracking.dart';
 
 /// A class that can be extended or mixed in that provides a change notification
 /// API using [VoidCallback] for notifications.
@@ -94,7 +93,7 @@ class _ChangeNotifier implements Listenable {
   static bool debugAssertNotDisposed(_ChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw UiError(
+        throw FrameworkErrorReporter.instance.createError(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
@@ -281,7 +280,7 @@ class _ChangeNotifier implements Listenable {
   /// not be visited after they are removed.
   ///
   /// Exceptions thrown by listeners will be caught and reported using
-  /// [UiError.reportError].
+  /// [FrameworkErrorReporter.instance].
   ///
   /// This method must not be called after [dispose] has been called.
   ///
@@ -316,21 +315,11 @@ class _ChangeNotifier implements Listenable {
       try {
         _listeners[i]?.call();
       } catch (exception, stack) {
-        UiError.reportError(
-          UiErrorDetails(
+        FrameworkErrorReporter.instance.report(
+          FrameworkErrorDetails(
             exception: exception,
             stack: stack,
-            library: 'foundation library',
-            context: ErrorDescription(
-              'while dispatching notifications for $runtimeType',
-            ),
-            informationCollector: () => <DiagnosticsNode>[
-              DiagnosticsProperty<_ChangeNotifier>(
-                'The $runtimeType sending notification was',
-                this,
-                style: DiagnosticsTreeStyle.errorProperty,
-              ),
-            ],
+            dispatchingObject: runtimeType,
           ),
         );
       }
@@ -396,7 +385,7 @@ class _ChangeNotifier implements Listenable {
 ///
 /// Because of this behavior, [ValueNotifier] is best used with immutable data
 /// types.
-class ValueNotifier<T> implements ValueListenable<T> {
+class ValueNotifier<T> implements ValueListenable<T>, Listenable {
   final _ChangeNotifier _changeNotifier = _ChangeNotifier();
 
   /// Creates a [_ChangeNotifier] that wraps this value.
@@ -414,7 +403,7 @@ class ValueNotifier<T> implements ValueListenable<T> {
   static bool debugAssertNotDisposed<T>(ValueNotifier<T> notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw UiError(
+        throw FrameworkErrorReporter.instance.createError(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
