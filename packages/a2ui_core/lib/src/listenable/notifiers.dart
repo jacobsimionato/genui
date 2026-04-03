@@ -8,51 +8,64 @@ library;
 
 import 'package:meta/meta.dart';
 
-import 'error_reporter.dart';
-import 'listenable.dart';
+import 'error_reporting.dart';
 import 'primitives.dart';
-import 'private_leak_tracking.dart';
+
+/// An object that maintains a list of listeners.
+///
+/// Dart replica of Flutter's [Listenable](https://api.flutter.dev/flutter/foundation/Listenable-class.html)
+///
+/// This class should not be modified, because it is temporary and should be
+/// replaced with dash-wide alternative.
+abstract class GenUiListenable {
+  /// This constructor enables subclasses to provide const constructors so that
+  /// they can be used in const expressions.
+  const GenUiListenable();
+
+  /// Return a [GenUiListenable] that triggers when any of the given
+  /// [GenUiListenable]s themselves trigger.
+  ///
+  /// Once the factory is called, items must not be added
+  /// or removed from the iterable.
+  /// Doing so will lead to memory leaks or exceptions.
+  ///
+  /// The iterable may contain nulls; they are ignored.
+  factory GenUiListenable.merge(Iterable<GenUiListenable?> listenables) =
+      _MergingListenable;
+
+  /// Register a closure to be called when the object notifies its listeners.
+  void addListener(VoidCallback listener);
+
+  /// Remove a previously registered closure from the list of closures that the
+  /// object notifies.
+  void removeListener(VoidCallback listener);
+}
+
+/// An interface for subclasses of [GenUiListenable] that expose a [value].
+///
+/// Dart replica of Flutter's [ValueListenable](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html)
+///
+/// This class should not be modified, because it is temporary and should be
+/// replaced with dash-wide alternative.
+abstract class GenUiValueListenable<T> extends GenUiListenable {
+  /// This constructor enables subclasses to provide const constructors so that
+  /// they can be used in const expressions.
+  const GenUiValueListenable();
+
+  /// The current value of the object.
+  ///
+  /// When the value changes, the callbacks registered with [addListener]
+  /// will be invoked.
+  T get value;
+}
 
 /// A class that can be extended or mixed in that provides a change notification
-/// API using [VoidCallback] for notifications.
 ///
-/// It is O(1) for adding listeners and O(N) for removing listeners and
-/// dispatching
-/// notifications (where N is the number of listeners).
+/// Dart replica of Flutter's [ChangeNotifier](https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html)
 ///
-/// ## Using ChangeNotifier subclasses for data models
-///
-/// A data structure can extend or mix in [_ChangeNotifier] to implement the
-/// [Listenable] interface and thus become usable with widgets that listen for
-/// changes to [Listenable]s, such as [ListenableBuilder].
-///
-/// {@tool dartpad}
-/// The following example implements a simple counter that utilizes a
-/// [ListenableBuilder] to limit rebuilds to only the [Text] widget containing
-/// the count. The current count is stored in a [_ChangeNotifier] subclass,
-/// which
-/// rebuilds the [ListenableBuilder]'s contents when its value is changed.
-///
-/// ** See code in
-/// examples/api/lib/widgets/transitions/listenable_builder.2.dart **
-/// {@end-tool}
-///
-/// {@tool dartpad}
-/// In this case, the [_ChangeNotifier] subclass encapsulates a list, and
-/// notifies
-/// the clients any time an item is added to the list. This example only
-/// supports
-/// adding items; as an exercise, consider adding buttons to remove items from
-/// the list as well.
-///
-/// ** See code in
-/// examples/api/lib/widgets/transitions/listenable_builder.3.dart **
-/// {@end-tool}
-///
-/// See also:
-///
-///  * [ValueNotifier], which is a [_ChangeNotifier] that wraps a single value.
-class _ChangeNotifier implements Listenable {
+/// This class should not be modified, because it is temporary and should be
+/// replaced with dash-wide alternative.
+mixin class ChangeNotifier implements GenUiListenable {
   int _count = 0;
   // The _listeners is intentionally set to a fixed-length _GrowableList instead
   // of const [].
@@ -71,7 +84,7 @@ class _ChangeNotifier implements Listenable {
   int _reentrantlyRemovedListeners = 0;
   bool _debugDisposed = false;
 
-  /// Used by subclasses to assert that the [_ChangeNotifier] has not yet been
+  /// Used by subclasses to assert that the [ChangeNotifier] has not yet been
   /// disposed.
   ///
   /// {@tool snippet}
@@ -90,10 +103,10 @@ class _ChangeNotifier implements Listenable {
   // This is static and not an instance method because too many people try to
   // implement ChangeNotifier instead of extending it (and so it is too breaking
   // to add a method, especially for debug).
-  static bool debugAssertNotDisposed(_ChangeNotifier notifier) {
+  static bool debugAssertNotDisposed(ChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.createError(
+        throw ListenableErrorReporting.createError(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
@@ -137,7 +150,7 @@ class _ChangeNotifier implements Listenable {
   /// (e.g. in response to a notification), it will still be called again. If,
   /// on the other hand, it is removed as many times as it was registered, then
   /// it will no longer be called. This odd behavior is the result of the
-  /// [_ChangeNotifier] not being able to determine which listener is being
+  /// [ChangeNotifier] not being able to determine which listener is being
   /// removed, since they are identical, therefore it will conservatively still
   /// call all the listeners when it knows that any are still registered.
   ///
@@ -152,7 +165,7 @@ class _ChangeNotifier implements Listenable {
   ///    the list of closures that are notified when the object changes.
   @override
   void addListener(VoidCallback listener) {
-    assert(_ChangeNotifier.debugAssertNotDisposed(this));
+    assert(ChangeNotifier.debugAssertNotDisposed(this));
 
     if (_count == _listeners.length) {
       if (_count == 0) {
@@ -221,9 +234,8 @@ class _ChangeNotifier implements Listenable {
     // This method is allowed to be called on disposed instances for usability
     // reasons. Due to how our frame scheduling logic between render objects and
     // overlays, it is common that the owner of this instance would be disposed
-    // a
-    // frame earlier than the listeners. Allowing calls to this method after it
-    // is disposed makes it easier for listeners to properly clean up.
+    // a frame earlier than the listeners. Allowing calls to this method
+    // after it is disposed makes it easier for listeners to properly clean up.
     for (var i = 0; i < _count; i++) {
       final VoidCallback? listenerAtIndex = _listeners[i];
       if (listenerAtIndex == listener) {
@@ -257,13 +269,14 @@ class _ChangeNotifier implements Listenable {
   /// listeners or not immediately before disposal.
   @mustCallSuper
   void dispose() {
-    assert(_ChangeNotifier.debugAssertNotDisposed(this));
-    assert(
-      _notificationCallStackDepth == 0,
-      'The "dispose()" method on $this was called during the call to '
-      '"notifyListeners()". This is likely to cause errors since it modifies '
-      'the list of listeners while the list is being used.',
-    );
+    assert(ChangeNotifier.debugAssertNotDisposed(this));
+    if (_notificationCallStackDepth > 0) {
+      throw ListenableErrorReporting.createError(
+        'The "dispose()" method on $this was called during the call to '
+        '"notifyListeners()". This is likely to cause errors since it modifies '
+        'the list of listeners while the list is being used.',
+      );
+    }
     assert(() {
       _debugDisposed = true;
       return true;
@@ -280,7 +293,7 @@ class _ChangeNotifier implements Listenable {
   /// not be visited after they are removed.
   ///
   /// Exceptions thrown by listeners will be caught and reported using
-  /// [FrameworkErrorReporter.instance].
+  /// [ListenableErrorReporting.report].
   ///
   /// This method must not be called after [dispose] has been called.
   ///
@@ -291,7 +304,7 @@ class _ChangeNotifier implements Listenable {
   @visibleForTesting
   @pragma('vm:notify-debugger-on-exception')
   void notifyListeners() {
-    assert(_ChangeNotifier.debugAssertNotDisposed(this));
+    assert(ChangeNotifier.debugAssertNotDisposed(this));
     if (_count == 0) {
       return;
     }
@@ -315,11 +328,11 @@ class _ChangeNotifier implements Listenable {
       try {
         _listeners[i]?.call();
       } catch (exception, stack) {
-        FrameworkErrorReporter.instance.report(
-          FrameworkErrorDetails(
+        ListenableErrorReporting.report(
+          ListenableErrorDetails(
             exception: exception,
             stack: stack,
-            dispatchingObject: runtimeType,
+            dispatchingObject: this,
           ),
         );
       }
@@ -365,54 +378,41 @@ class _ChangeNotifier implements Listenable {
   }
 }
 
-/// A [_ChangeNotifier] that holds a single value.
-///
-/// When [value] is replaced with a new value that is **not equal** to the old
-/// value as evaluated by the equality operator (`==`), this class notifies its
-/// listeners.
-///
-/// ## Limitations
-///
-/// Notifications are triggered based on **equality (`==`)**, not on mutations
-/// within the value itself. As a result, changes to mutable objects that do not
-/// affect their equality will not cause listeners to be notified.
-///
-/// For example, a `ValueNotifier<List<int>>` will not notify listeners when
-/// the contents of the existing list are modified in-place; it only notifies
-/// when a new value is assigned to the `value` property (i.e. `value =
-/// newValue`),
-/// where equality is determined by `==`.
-///
-/// Because of this behavior, [ValueNotifier] is best used with immutable data
-/// types.
-class ValueNotifier<T> implements ValueListenable<T>, Listenable {
-  final _ChangeNotifier _changeNotifier = _ChangeNotifier();
+class _MergingListenable extends GenUiListenable {
+  _MergingListenable(this._children);
 
-  /// Creates a [_ChangeNotifier] that wraps this value.
-  ValueNotifier(this._value) {
-    assert(() {
-      if (kTrackMemoryLeaks) {
-        debugMaybeDispatchCreated(runtimeType.toString(), this);
-      }
-      return true;
-    }());
+  final Iterable<GenUiListenable?> _children;
+
+  @override
+  void addListener(VoidCallback listener) {
+    for (final GenUiListenable? child in _children) {
+      child?.addListener(listener);
+    }
   }
 
-  bool _debugDisposed = false;
-
-  static bool debugAssertNotDisposed<T>(ValueNotifier<T> notifier) {
-    assert(() {
-      if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.createError(
-          'A ${notifier.runtimeType} was used after being disposed.\n'
-          'Once you have called dispose() on a ${notifier.runtimeType}, it '
-          'can no longer be used.',
-        );
-      }
-      return true;
-    }());
-    return true;
+  @override
+  void removeListener(VoidCallback listener) {
+    for (final GenUiListenable? child in _children) {
+      child?.removeListener(listener);
+    }
   }
+
+  @override
+  String toString() {
+    return 'Listenable.merge([${_children.join(", ")}])';
+  }
+}
+
+/// A [ChangeNotifier] that holds a single value.
+///
+/// Dart replica of Flutter's [ValueNotifier](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html)
+///
+/// This class should not be modified, because it is temporary and should be
+/// replaced with dash-wide alternative.
+class ValueNotifier<T> extends ChangeNotifier
+    implements GenUiValueListenable<T> {
+  /// Creates a [ChangeNotifier] that wraps this value.
+  ValueNotifier(this._value);
 
   /// The current value stored in this notifier.
   ///
@@ -427,33 +427,9 @@ class ValueNotifier<T> implements ValueListenable<T>, Listenable {
       return;
     }
     _value = newValue;
-    _changeNotifier.notifyListeners();
+    notifyListeners();
   }
 
   @override
   String toString() => '${describeIdentity(this)}($value)';
-
-  void dispose() {
-    assert(() {
-      _debugDisposed = true;
-      if (kTrackMemoryLeaks) debugMaybeDispatchDisposed(this);
-      return true;
-    }());
-
-    _changeNotifier.dispose();
-  }
-
-  @override
-  void addListener(VoidCallback listener) =>
-      _changeNotifier.addListener(listener);
-
-  @override
-  void removeListener(VoidCallback listener) =>
-      _changeNotifier.removeListener(listener);
-
-  @protected
-  bool get hasListeners => _changeNotifier.hasListeners;
-
-  @protected
-  void notifyListeners() => _changeNotifier.notifyListeners();
 }
