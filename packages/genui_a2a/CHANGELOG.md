@@ -2,6 +2,7 @@
 
 ## 0.8.1 (in progress)
 
+- **BREAKING**: `A2uiAgentConnector` constructor now requires exactly one of `url` or `client` (#886).
 - **Feature**: Export `A2AClient` (#886).
 
 ## 0.8.0
