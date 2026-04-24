@@ -1,6 +1,6 @@
 # `genui` Changelog
 
-## 0.8.1 (in progress)
+## 0.9.0
 
 - **BREAKING**: Reorganized library exports (#866).
 - **Feature**: Add two skills to the `genui` package (#800).
