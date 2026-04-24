@@ -2,6 +2,11 @@
 
 ## 0.8.1 (in progress)
 
+- Bug fixes for A2UI parser (#868)
+- Add FlutterListenable (#860)
+- Improvements to prompt (#841)
+- Fix schema which did not match A2UI specification (#833)
+
 ## 0.8.0
 
 - **BREAKING**: Updated package to align with A2UI v0.9 protocol and introduced extensive architectural changes.
