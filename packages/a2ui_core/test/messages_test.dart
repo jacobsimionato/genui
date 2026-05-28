@@ -105,10 +105,36 @@ void main() {
       );
     });
 
-    test('throws when envelope contains more than one message-body key', () {
-      // The v0.9 schema is oneOf the four message-body keys; an envelope
-      // that carries more than one is invalid and must not be silently
-      // coerced to whichever branch happens to be checked first.
+    test('throws when version field is missing', () {
+      expect(
+        () => A2uiMessage.fromJson({
+          'createSurface': {'surfaceId': 's1', 'catalogId': 'c1'},
+        }),
+        throwsA(isA<A2uiValidationError>()),
+      );
+    });
+
+    test('throws when version is not v0.9', () {
+      expect(
+        () => A2uiMessage.fromJson({
+          'version': 'v0.8',
+          'createSurface': {'surfaceId': 's1', 'catalogId': 'c1'},
+        }),
+        throwsA(isA<A2uiValidationError>()),
+      );
+    });
+
+    test('throws when version is not a string', () {
+      expect(
+        () => A2uiMessage.fromJson({
+          'version': 123,
+          'createSurface': {'surfaceId': 's1', 'catalogId': 'c1'},
+        }),
+        throwsA(isA<A2uiValidationError>()),
+      );
+    });
+
+    test('throws when more than one message type is present', () {
       expect(
         () => A2uiMessage.fromJson({
           'version': 'v0.9',
