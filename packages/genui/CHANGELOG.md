@@ -2,6 +2,10 @@
 
 ## 0.10.2
 
+- Fixed `PluralizeFunction` to use `Intl.pluralLogic` instead of `Intl.plural` to
+  avoid message extraction errors when arguments are dynamic runtime
+  expressions.
+
 - Fixed `A2uiTransportAdapter.incomingText` trimming every streamed chunk, which
   made words run together when chunks were concatenated.
 
