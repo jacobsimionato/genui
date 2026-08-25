@@ -511,7 +511,7 @@ class PluralizeFunction extends SynchronousClientFunction {
     final Object? count = args['value'] ?? args['count'];
     if (count is! num) return '';
 
-    return Intl.plural(
+    return Intl.pluralLogic(
       count,
       zero: args['zero'] as String?,
       one: args['one'] as String?,
