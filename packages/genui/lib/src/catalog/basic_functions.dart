@@ -52,7 +52,16 @@ class BasicFunctions {
 bool _isTruthy(Object? value) {
   if (value is bool) return value;
   if (value == null) return false;
-  return true;
+  if (value is String) return value.isNotEmpty;
+  if (value is num) return value != 0 && !value.isNaN;
+  if (value is List) return value.isNotEmpty;
+  if (value is Map) {
+    if (value.containsKey('valid') && value['valid'] is bool) {
+      return value['valid'] as bool;
+    }
+    return false;
+  }
+  return false;
 }
 
 /// Checks if all values in a list are truthy.

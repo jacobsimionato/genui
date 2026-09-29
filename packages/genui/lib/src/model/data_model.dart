@@ -115,6 +115,16 @@ class DataContext implements cf.ExecutionContext {
       if (value.containsKey('call')) {
         return _evaluateFunctionCall(value as JsonMap);
       }
+      if (value.containsKey('functionCall') && value['functionCall'] is Map) {
+        return _evaluateStream(value['functionCall']);
+      }
+    }
+    if (value is List) {
+      if (value.isEmpty) return Stream.value(<Object?>[]);
+      final List<Stream<Object?>> itemStreams = value
+          .map(_evaluateStream)
+          .toList();
+      return itemStreams.combineLatestAll();
     }
     if (value is Stream) return value.cast<Object?>();
     return Stream.value(value);
@@ -170,7 +180,17 @@ class DataContext implements cf.ExecutionContext {
     final Stream<Object?> resultStream = _evaluateStream(condition);
     return resultStream.map((v) {
       if (v is bool) return v;
-      return v != null;
+      if (v == null) return false;
+      if (v is String) return v.isNotEmpty;
+      if (v is num) return v != 0 && !v.isNaN;
+      if (v is List) return v.isNotEmpty;
+      if (v is Map) {
+        if (v.containsKey('valid') && v['valid'] is bool) {
+          return v['valid'] as bool;
+        }
+        return false;
+      }
+      return false;
     });
   }
 }
