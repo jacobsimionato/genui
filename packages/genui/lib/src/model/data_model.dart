@@ -178,21 +178,24 @@ class DataContext implements cf.ExecutionContext {
     if (condition is bool) return Stream.value(condition);
 
     final Stream<Object?> resultStream = _evaluateStream(condition);
-    return resultStream.map((v) {
-      if (v is bool) return v;
-      if (v == null) return false;
-      if (v is String) return v.isNotEmpty;
-      if (v is num) return v != 0 && !v.isNaN;
-      if (v is List) return v.isNotEmpty;
-      if (v is Map) {
-        if (v.containsKey('valid') && v['valid'] is bool) {
-          return v['valid'] as bool;
-        }
-        return false;
-      }
-      return false;
-    });
+    return resultStream.map(isTruthy);
   }
+}
+
+/// Helper to determine truthiness according to A2UI expression semantics.
+bool isTruthy(Object? value) {
+  if (value is bool) return value;
+  if (value == null) return false;
+  if (value is String) return value.isNotEmpty;
+  if (value is num) return value != 0 && !value.isNaN;
+  if (value is List) return value.isNotEmpty;
+  if (value is Map) {
+    if (value.containsKey('valid') && value['valid'] is bool) {
+      return value['valid'] as bool;
+    }
+    return false;
+  }
+  return false;
 }
 
 /// Resolves a context map definition against a [DataContext].

@@ -86,7 +86,7 @@ final checkBox = CatalogItem(
                         );
                       }
                     },
-                    subtitle: isError
+                    subtitle: errorMessage != null
                         ? Text(
                             errorMessage,
                             style: TextStyle(
