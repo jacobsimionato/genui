@@ -1,5 +1,12 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
+## 0.10.7
+
+- **Fix**: Validation `checks` on `CheckBox`, `Slider` and `ChoicePicker` now fail when their condition is false, and show the check's `message` instead of a generic "Invalid value".
+- **Fix**: `and`/`or` now evaluate bindings and function calls inside `values`, so a failing nested check fails the rule.
+- **Behavior change**: Conditions use truthiness instead of a null check. `0`, `''`, `[]`, `{}` and unknown functions evaluate to `false`, and malformed condition expressions log a warning.
+- **Behavior change**: `resolve()` and `resolveContext()` recursively resolve dynamic values inside lists.
+
 ## 0.10.6
 
 - Added `AsynchronousClientFunction` base class for single-shot asynchronous
