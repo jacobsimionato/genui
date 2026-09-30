@@ -541,6 +541,49 @@ void main() {
           isFalse,
         );
 
+        // Malformed inner map inside functionCall wrapper in `and`
+        final JsonMap andMalformedFc = {
+          'call': 'and',
+          'args': {
+            'values': [
+              {
+                'functionCall': {
+                  'cal': 'required',
+                  'args': <String, Object?>{},
+                },
+              },
+              true,
+            ],
+          },
+        };
+        expect(
+          await contextWithFuncs.evaluateConditionStream(andMalformedFc).first,
+          isFalse,
+        );
+
+        // Malformed inner map inside functionCall wrapper in `not`
+        final JsonMap notMalformedFc = {
+          'call': 'not',
+          'args': {
+            'value': {
+              'functionCall': {'cal': 'required', 'args': <String, Object?>{}},
+            },
+          },
+        };
+        expect(
+          await contextWithFuncs.evaluateConditionStream(notMalformedFc).first,
+          isFalse,
+        );
+
+        // Top-level functionCall with malformed inner map
+        final JsonMap topMalformedFc = {
+          'functionCall': {'cal': 'required', 'args': <String, Object?>{}},
+        };
+        expect(
+          await contextWithFuncs.evaluateConditionStream(topMalformedFc).first,
+          isFalse,
+        );
+
         // Unknown function inside `and`
         final JsonMap andUnknown = {
           'call': 'and',

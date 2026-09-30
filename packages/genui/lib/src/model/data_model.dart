@@ -156,7 +156,7 @@ class DataContext implements cf.ExecutionContext {
             if (item is Map) {
               if (item.containsKey('functionCall')) {
                 final Object? fc = item['functionCall'];
-                if (fc is Map) {
+                if (fc is Map && _isValidConditionShape(fc)) {
                   return _evaluateStream(fc);
                 } else {
                   genUiLogger.warning('Invalid condition expression: $item');
@@ -177,7 +177,7 @@ class DataContext implements cf.ExecutionContext {
           if (val is Map) {
             if (val.containsKey('functionCall')) {
               final Object? fc = val['functionCall'];
-              if (fc is Map) {
+              if (fc is Map && _isValidConditionShape(fc)) {
                 args[argName] = _evaluateStream(fc);
               } else {
                 genUiLogger.warning('Invalid condition expression: $val');
@@ -225,7 +225,7 @@ class DataContext implements cf.ExecutionContext {
     if (condition is Map) {
       if (condition.containsKey('functionCall')) {
         final Object? fc = condition['functionCall'];
-        if (fc is Map) {
+        if (fc is Map && _isValidConditionShape(fc)) {
           return evaluateConditionStream(fc);
         } else {
           genUiLogger.warning('Invalid condition expression: $condition');
@@ -244,9 +244,12 @@ class DataContext implements cf.ExecutionContext {
 }
 
 bool _isValidConditionShape(Map<Object?, Object?> map) {
-  return map.containsKey('path') ||
-      map.containsKey('call') ||
-      (map.containsKey('functionCall') && map['functionCall'] is Map);
+  if (map.containsKey('path') || map.containsKey('call')) return true;
+  if (map.containsKey('functionCall')) {
+    final Object? fc = map['functionCall'];
+    return fc is Map && _isValidConditionShape(fc);
+  }
+  return false;
 }
 
 /// Helper to determine truthiness according to A2UI expression semantics.
