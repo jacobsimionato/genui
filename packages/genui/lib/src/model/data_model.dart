@@ -133,6 +133,9 @@ class DataContext implements cf.ExecutionContext {
   Stream<Object?> _evaluateFunctionCall(JsonMap callDefinition) {
     final name = callDefinition['call'] as String?;
     if (name == null) {
+      genUiLogger.warning(
+        'Function call missing "call" property: $callDefinition',
+      );
       return Stream.value(null);
     }
 
@@ -177,6 +180,14 @@ class DataContext implements cf.ExecutionContext {
     if (condition == null) return Stream.value(false);
     if (condition is bool) return Stream.value(condition);
 
+    if (condition is Map &&
+        !condition.containsKey('path') &&
+        !condition.containsKey('call') &&
+        !condition.containsKey('functionCall')) {
+      genUiLogger.warning('Invalid condition expression: $condition');
+      return Stream.value(false);
+    }
+
     final Stream<Object?> resultStream = _evaluateStream(condition);
     return resultStream.map(isTruthy);
   }
@@ -193,7 +204,7 @@ bool isTruthy(Object? value) {
     if (value.containsKey('valid') && value['valid'] is bool) {
       return value['valid'] as bool;
     }
-    return false;
+    return value.isNotEmpty;
   }
   return false;
 }

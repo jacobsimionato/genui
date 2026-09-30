@@ -412,6 +412,37 @@ void main() {
 
       dataModel.update(DataPath('/str'), '');
       expect(await context.evaluateConditionStream(condition).first, isFalse);
+
+      // Map truthiness: non-empty map is true, empty map is false
+      dataModel.update(DataPath('/user'), {'name': 'Ada'});
+      final userCondition = {'path': '/user'};
+      expect(
+        await context.evaluateConditionStream(userCondition).first,
+        isTrue,
+      );
+
+      dataModel.update(DataPath('/user'), <String, Object?>{});
+      expect(
+        await context.evaluateConditionStream(userCondition).first,
+        isFalse,
+      );
+
+      // ValidationResult map: valid flag determines truthiness
+      dataModel.update(DataPath('/valResult'), {'valid': true});
+      final valResultCondition = {'path': '/valResult'};
+      expect(
+        await context.evaluateConditionStream(valResultCondition).first,
+        isTrue,
+      );
+
+      dataModel.update(DataPath('/valResult'), {
+        'valid': false,
+        'message': 'err',
+      });
+      expect(
+        await context.evaluateConditionStream(valResultCondition).first,
+        isFalse,
+      );
     });
 
     test('evaluateConditionStream treats unknown functions and invalid maps as '
